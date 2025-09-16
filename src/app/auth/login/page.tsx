@@ -58,7 +58,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-slate-100 flex items-center justify-center px-6 py-12">
+    <div className="bg-neutral-950 text-slate-100 flex items-center justify-center px-6 py-12">
       <div className="mx-auto grid w-full max-w-5xl gap-16 lg:grid-cols-2">
         {/* Left: login form (flat) */}
         <div className="w-full">

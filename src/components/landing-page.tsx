@@ -1,6 +1,6 @@
 import React from "react";
-import Image from "next/image";
 import PublicNavbar from "@/components/public-navbar";
+import PublicFooter from "@/components/public-footer";
 import {
   CalendarClock,
   Clock,
@@ -286,32 +286,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-10 border-t border-white/10 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="LIT Cal"
-              width={22}
-              height={22}
-              className="rounded"
-            />
-            <span className="text-base text-slate-400">
-              © {new Date().getFullYear()} LIT Cal
-            </span>
-          </div>
-          <div className="flex items-center gap-4 text-base text-slate-400">
-            <a href="#features" className="hover:opacity-80">
-              Features
-            </a>
-            <a href="#how" className="hover:opacity-80">
-              How it works
-            </a>
-            <a href="#cta" className="hover:opacity-80">
-              Get started
-            </a>
-          </div>
-        </div>
+      <footer>
+        <PublicFooter />
       </footer>
     </div>
   );
