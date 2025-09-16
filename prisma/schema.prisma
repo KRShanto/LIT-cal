@@ -37,6 +37,7 @@ model User {
   email        String   @unique
   imageUrl     String?
   publicEmail  String?
+  username     String   @unique
   passwordHash String?
   timezone     String?
   createdAt    DateTime @default(now())
