@@ -35,6 +35,8 @@ model User {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
+  imageUrl     String?
+  publicEmail  String?
   passwordHash String?
   timezone     String?
   createdAt    DateTime @default(now())
