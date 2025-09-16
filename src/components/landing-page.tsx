@@ -70,6 +70,28 @@ export default function LandingPage() {
     },
   ];
 
+  // Accent hues for colorful feature icons
+  const featureAccents = [
+    {
+      bg: "bg-emerald-500/15",
+      text: "text-emerald-300",
+      ring: "ring-emerald-500/20",
+    },
+    { bg: "bg-sky-500/15", text: "text-sky-300", ring: "ring-sky-500/20" },
+    {
+      bg: "bg-violet-500/15",
+      text: "text-violet-300",
+      ring: "ring-violet-500/20",
+    },
+    { bg: "bg-rose-500/15", text: "text-rose-300", ring: "ring-rose-500/20" },
+    {
+      bg: "bg-amber-500/15",
+      text: "text-amber-300",
+      ring: "ring-amber-500/20",
+    },
+    { bg: "bg-cyan-500/15", text: "text-cyan-300", ring: "ring-cyan-500/20" },
+  ];
+
   return (
     <div className="min-h-screen bg-neutral-950 text-slate-100">
       {/* Navbar */}
@@ -138,13 +160,13 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center gap-3">
               <a
                 href="#cta"
-                className="rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+                className="rounded-md bg-primary px-5 py-3 text-sm font-semibold tracking-wide text-neutral-950 shadow-lg ring-1 ring-primary/30 transition hover:opacity-95"
               >
                 Get started free
               </a>
               <a
                 href="#features"
-                className="rounded-md border border-white/10 px-5 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5"
+                className="rounded-md border border-white/15 px-5 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
               >
                 Explore features
               </a>
@@ -205,7 +227,13 @@ export default function LandingPage() {
               key={index}
               className="group rounded-xl border border-white/10 bg-white/[0.03] p-6 transition hover:bg-white/[0.05]"
             >
-              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-black/10">
+              <div
+                className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg ring-1 ${
+                  featureAccents[index % featureAccents.length].bg
+                } ${featureAccents[index % featureAccents.length].text} ${
+                  featureAccents[index % featureAccents.length].ring
+                }`}
+              >
                 <item.Icon size={18} />
               </div>
               <h3 className="text-base font-semibold">{item.title}</h3>
@@ -226,29 +254,36 @@ export default function LandingPage() {
               A streamlined flow so invitees can book in seconds—no email
               ping‑pong.
             </p>
-            <div className="divide-y divide-white/10 rounded-xl border border-white/10 bg-white/[0.03]">
-              {steps.map((s, index) => (
-                <div
-                  key={index}
-                  className="grid gap-3 p-6 sm:grid-cols-[72px_1fr]"
-                >
-                  <div className="text-sm font-mono text-slate-400">
-                    {s.step}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold">{s.title}</h3>
-                    <p className="mt-1 text-sm text-slate-300">
-                      {s.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            {/* Timeline */}
+            <div className="relative">
+              <div className="absolute left-4 top-0 h-full w-px bg-white/10" />
+              <ul className="space-y-5">
+                {steps.map((s, index) => (
+                  <li
+                    key={index}
+                    className="relative grid grid-cols-[48px_1fr] items-start gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-5"
+                  >
+                    <div className="relative flex h-10 w-10 items-center justify-center">
+                      <span className="absolute inset-0 -z-10 rounded-full bg-primary/25 blur" />
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-neutral-950 text-sm font-semibold ring-1 ring-primary/40">
+                        {s.step}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold">{s.title}</h3>
+                      <p className="mt-1 text-sm text-slate-300">
+                        {s.description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
           <div className="relative">
             <div className="absolute -inset-6 -z-10 rounded-3xl bg-primary/10 blur-2xl" />
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 shadow-xl ring-1 ring-black/20 backdrop-blur">
-              <div className="h-[320px] rounded-xl border border-white/10 bg-[radial-gradient(ellipse_at_top_left,rgba(190,255,100,0.2),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(190,255,100,0.12),transparent_50%)]" />
+              <div className="h-[320px] rounded-xl border border-white/10 bg-[radial-gradient(ellipse_at_top_left,rgba(190,255,100,0.22),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(190,255,100,0.14),transparent_50%)]" />
             </div>
           </div>
         </div>
@@ -270,15 +305,15 @@ export default function LandingPage() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <a
               href="#"
-              className="rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+              className="rounded-md bg-primary px-6 py-3 text-sm font-semibold tracking-wide text-neutral-950 shadow-lg ring-1 ring-primary/30 transition hover:opacity-95"
             >
-              Create free account
+              Create your first event
             </a>
             <a
               href="#features"
-              className="rounded-md border border-white/10 px-6 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5"
+              className="rounded-md border border-white/15 px-6 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
             >
-              See features
+              See what’s inside
             </a>
           </div>
         </div>
