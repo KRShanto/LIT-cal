@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   LayoutDashboard,
   CalendarClock,
@@ -11,6 +12,7 @@ import {
   Settings,
   Plus,
   Copy,
+  Check,
 } from "lucide-react";
 
 const navItems = [
@@ -24,11 +26,16 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [copied, setCopied] = useState(false);
+  const linkToCopy = "https://lit.cal/you";
+
   const copyUrl = async () => {
     try {
-      await navigator.clipboard.writeText("https://lit.cal/you");
+      await navigator.clipboard.writeText(linkToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1000);
     } catch (e) {
-      // no-op
+      console.error(e);
     }
   };
 
@@ -88,13 +95,24 @@ export default function Sidebar() {
           <p className="text-base text-slate-300">Share your booking link</p>
           <div className="mt-3 flex items-center gap-2">
             <div className="flex-1 rounded bg-neutral-900 px-3 py-2 text-sm">
-              https://lit.cal/you
+              {linkToCopy}
             </div>
             <button
               onClick={copyUrl}
-              className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
+              title={copied ? "Copied!" : "Copy"}
+              className={`rounded-md border px-3 py-2 text-sm transition ${
+                copied
+                  ? "border-primary/60 bg-primary/10 text-primary"
+                  : "border-white/10 text-slate-200 hover:bg-white/5"
+              }`}
+              aria-live="polite"
+              aria-label={copied ? "Copied" : "Copy link"}
             >
-              <Copy className="h-4 w-4" />
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
