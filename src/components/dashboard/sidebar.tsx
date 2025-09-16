@@ -14,6 +14,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { AuthUser } from "@/lib/auth";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", Icon: LayoutDashboard },
@@ -24,10 +25,10 @@ const navItems = [
   { href: "/settings", label: "Settings", Icon: Settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ user }: { user: AuthUser }) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
-  const linkToCopy = "https://lit.cal/you";
+  const linkToCopy = `${process.env.NEXT_PUBLIC_APP_URL}/booking/${user.username}`;
 
   const copyUrl = async () => {
     try {

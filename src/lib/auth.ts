@@ -3,6 +3,9 @@ import { verifyJWT } from "@/lib/jwt";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 
+// Type for the returned user object
+export type AuthUser = NonNullable<Awaited<ReturnType<typeof getUser>>>;
+
 export async function getUser() {
   try {
     // Get token from cookies
@@ -27,6 +30,7 @@ export async function getUser() {
         name: true,
         imageUrl: true,
         publicEmail: true,
+        username: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -43,6 +47,7 @@ export async function getUser() {
       email: user.email,
       name: user.name,
       imageUrl: user.imageUrl,
+      username: user.username,
       publicEmail: user.publicEmail,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -52,9 +57,6 @@ export async function getUser() {
     return null;
   }
 }
-
-// Type for the returned user object
-export type AuthUser = NonNullable<Awaited<ReturnType<typeof getUser>>>;
 
 // Helper to use in Server Components to require authentication
 export async function requireAuth() {
