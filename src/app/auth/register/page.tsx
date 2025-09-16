@@ -2,23 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, User, CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    username: "",
     password: "",
   });
   const [error, setError] = useState("");
+  const [fieldError, setFieldError] = useState<{
+    field?: string;
+    message?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldError({});
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
@@ -27,7 +31,14 @@ export default function RegisterPage() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Registration failed");
+      if (!res.ok) {
+        if (data?.field && data?.error) {
+          setFieldError({ field: data.field, message: data.error });
+        } else {
+          setError(data?.error || "Registration failed");
+        }
+        return;
+      }
 
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
@@ -84,6 +95,30 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
+              <User className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Username"
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value.trim() })
+                }
+                className={`w-full rounded-md border bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary ${
+                  fieldError.field === "username"
+                    ? "border-red-500/60"
+                    : "border-white/10"
+                }`}
+                disabled={loading}
+                required
+              />
+              {fieldError.field === "username" && (
+                <p className="mt-1 text-sm text-red-300">
+                  {fieldError.message}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
@@ -92,10 +127,19 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className={`w-full rounded-md border bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary ${
+                  fieldError.field === "email"
+                    ? "border-red-500/60"
+                    : "border-white/10"
+                }`}
                 disabled={loading}
                 required
               />
+              {fieldError.field === "email" && (
+                <p className="mt-1 text-sm text-red-300">
+                  {fieldError.message}
+                </p>
+              )}
             </div>
 
             <div className="relative">

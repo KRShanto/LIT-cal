@@ -4,18 +4,37 @@ import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password, username } = await request.json();
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
+    // Check if all fields are provided
+    if (!name || !email || !password || !username) {
       return NextResponse.json(
-        { error: "User with this email already exists" },
+        { error: "All fields are required" },
         { status: 400 }
       );
+    }
+
+    // Check if email or username already exists
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+      select: { id: true, email: true, username: true },
+    });
+
+    if (existing) {
+      if (existing.email === email) {
+        return NextResponse.json(
+          { error: "Email already in use", field: "email" },
+          { status: 400 }
+        );
+      }
+      if (existing.username === username) {
+        return NextResponse.json(
+          { error: "Username already taken", field: "username" },
+          { status: 400 }
+        );
+      }
     }
 
     // Hash password
@@ -26,17 +45,15 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
+        username,
         passwordHash: hashedPassword,
       },
+      select: { id: true, name: true, email: true, username: true },
     });
 
     return NextResponse.json({
       message: "User created successfully",
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      user,
     });
   } catch (error) {
     console.error("Registration error:", error);
