@@ -1,8 +1,15 @@
-import type { ReactNode } from "react";
+import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Topbar from "@/components/dashboard/topbar";
+import { requireAuth } from "@/lib/auth";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  await requireAuth();
+
   return (
     <div className="min-h-screen bg-neutral-950 text-slate-100 overflow-x-hidden">
       <div className="flex">
