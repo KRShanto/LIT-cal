@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionType {
+  SHORT_TEXT
+  LONG_TEXT
+  RADIO
+  CHECKBOX
+  DROPDOWN
+  PHONE
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum CalendarProvider {
+  GOOGLE
+  NONE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String?
+  timezone     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  schedules        Schedule[]
+  eventTypes       EventType[]
+  bookings         Booking[]
+  contacts         Contact[]
+  calendarAccounts CalendarIntegration[]
+}
+
+model Schedule {
+  id        String             @id @default(cuid())
+  user      User               @relation(fields: [userId], references: [id])
+  userId    String
+  name      String
+  isDefault Boolean            @default(false)
+  timezone  String?
+  slots     AvailabilitySlot[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  EventType EventType[]
+
+  @@index([userId])
+}
+
+model AvailabilitySlot {
+  id           String   @id @default(cuid())
+  schedule     Schedule @relation(fields: [scheduleId], references: [id])
+  scheduleId   String
+  weekday      Weekday
+  startMinutes Int
+  endMinutes   Int
+  createdAt    DateTime @default(now())
+
+  @@index([scheduleId, weekday])
+}
+
+model EventType {
+  id              String              @id @default(cuid())
+  user            User                @relation(fields: [userId], references: [id])
+  userId          String
+  title           String
+  description     String?
+  durationMinutes Int
+  slug            String
+  schedule        Schedule?           @relation(fields: [scheduleId], references: [id])
+  scheduleId      String?
+  isActive        Boolean             @default(true)
+  isPublic        Boolean             @default(true)
+  questions       EventTypeQuestion[]
+  bookings        Booking[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([userId, slug])
+  @@index([userId])
+}
+
+model EventTypeQuestion {
+  id            String          @id @default(cuid())
+  eventType     EventType       @relation(fields: [eventTypeId], references: [id])
+  eventTypeId   String
+  idx           Int
+  question      String
+  type          QuestionType
+  required      Boolean         @default(false)
+  options       Json?
+  createdAt     DateTime        @default(now())
+  InviteeAnswer InviteeAnswer[]
+
+  @@index([eventTypeId, idx])
+}
+
+model Contact {
+  id           String  @id @default(cuid())
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String
+  fullName     String
+  email        String?
+  phone        String?
+  phoneCountry String?
+  jobTitle     String?
+  company      String?
+  linkedin     String?
+  timezone     String?
+  country      String?
+  city         String?
+  state        String?
+  avatarUrl    String?
+  notes        String?
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([userId, email])
+}
+
+model Booking {
+  id           String          @id @default(cuid())
+  eventType    EventType       @relation(fields: [eventTypeId], references: [id])
+  eventTypeId  String
+  user         User            @relation(fields: [userId], references: [id])
+  userId       String          @map("userId")
+  contact      Contact?        @relation(fields: [contactId], references: [id])
+  contactId    String?
+  inviteeName  String
+  inviteeEmail String
+  inviteePhone String?
+  startAt      DateTime
+  endAt        DateTime
+  timezone     String
+  metadata     Json?
+  answers      InviteeAnswer[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([userId, startAt])
+  @@index([eventTypeId])
+}
+
+model InviteeAnswer {
+  id         String            @id @default(cuid())
+  booking    Booking           @relation(fields: [bookingId], references: [id])
+  bookingId  String
+  question   EventTypeQuestion @relation(fields: [questionId], references: [id])
+  questionId String
+  value      Json
+  createdAt  DateTime          @default(now())
+
+  @@index([bookingId])
+}
+
+model CalendarIntegration {
+  id                String           @id @default(cuid())
+  user              User             @relation(fields: [userId], references: [id])
+  userId            String
+  provider          CalendarProvider @default(GOOGLE)
+  providerAccountId String?
+  accessToken       String
+  refreshToken      String
+  scope             String?
+  expiresAt         DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([userId, provider])
+}
