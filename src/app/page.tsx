@@ -8,7 +8,6 @@ export default async function Home() {
   if (!user) {
     return <LandingPage />;
   } else {
-    // redirect("/dashboard");
-    return <LandingPage />;
+    redirect("/dashboard");
   }
 }
