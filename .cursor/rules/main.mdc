@@ -1,0 +1,79 @@
+---
+description: Always look at these rules before any work
+globs:
+alwaysApply: true
+---
+
+# Main cursor rules
+
+This is a calendly style application.
+You can find more details in `REQUIREMENTS.md` and `README.md` files.
+
+## Tech Stack
+
+- Use **Next.js (App Router)** for frontend.
+- Use **Prisma + PostgreSQL** as ORM/database.
+- For MVP, assume a **single User = one account/tenant**. No Tenant model needed.
+
+## Database / Prisma
+
+- Always use the provided Prisma schema as the **single source of truth**.
+- Store all times (`Booking.startAt`, `Booking.endAt`) in **UTC**.
+- Always store invitee timezone in `Booking.timezone`.
+- When fetching availability or bookings, **convert times to/from UTC** using the user’s timezone.
+- Never allow overlapping bookings:
+  - Before creating a booking, check `(startAt < existingEnd) AND (endAt > existingStart)` where status is `PENDING` or `CONFIRMED`.
+
+## Models / Business Logic
+
+- **User**: Represents account owner. Multi-tenant support is via User separation, not Tenant model.
+- **Schedule** + **AvailabilitySlot**: Weekly recurring availability blocks.
+- **EventType**:
+  - Linked to a Schedule (optional).
+  - Has duration, buffer times, questions, email reminder, and calendar invite toggle.
+  - `slug` is unique per user (used in public booking URLs).
+- **EventTypeQuestion**: Stores invitee questions. Use `idx` for drag-and-drop ordering.
+- **Booking**:
+  - Links to `EventType`, `User` (host), and optional `Contact`.
+  - Stores invitee snapshot (name, email, phone).
+  - Stores `InviteeAnswer[]` for question responses.
+- **Contact**: All invitees are stored as contacts (with form fields like job title, company, etc.).
+- **CalendarIntegration**:
+  - For Google OAuth tokens.
+  - Encrypt tokens before saving.
+
+## API / Services
+
+- When creating a booking:
+  1. Validate event type is active.
+  2. Check availability against Schedule + existing Bookings.
+  3. Run transaction:
+     - Create Contact if doesn’t exist.
+     - Create Booking.
+     - Insert InviteeAnswers.
+- For Google Calendar integration, always refresh tokens when expired.
+
+## Naming / Conventions
+
+- Use `camelCase` in code, `snake_case` avoided in DB.
+- Use `cuid()` for IDs (matches Prisma default).
+- Use `slug` for public booking URLs instead of exposing IDs.
+
+## Security
+
+- Encrypt access/refresh tokens for Google Calendar.
+- Do not expose `User.passwordHash` or OAuth tokens in API responses.
+- Sanitize all invitee answers before rendering.
+
+## UI / UX
+
+- Dark theme support: prefer Tailwind CSS dark mode.
+- Availability UI must support multiple slots per day.
+- Booking flow: Date → Time → Invitee Questions → Confirm.
+
+## Extended Version (future)
+
+- Keep structure ready for:
+  - Email reminders (via Go workers).
+  - Webhooks per booking event.
+  - AI research bot (will query external data).
