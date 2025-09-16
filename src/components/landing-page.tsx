@@ -110,7 +110,7 @@ export default function LandingPage() {
 
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-2">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-slate-300">
               <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
               Scheduling, simplified
             </div>
@@ -124,18 +124,18 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center gap-3">
               <a
                 href="#cta"
-                className="rounded-md bg-primary px-5 py-3 text-sm font-semibold tracking-wide text-neutral-950 shadow-lg ring-1 ring-primary/30 transition hover:opacity-95"
+                className="rounded-md bg-primary px-5 py-3 text-base font-semibold text-neutral-950 shadow-sm transition hover:opacity-90"
               >
                 Get started free
               </a>
               <a
                 href="#features"
-                className="rounded-md border border-white/15 px-5 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
+                className="rounded-md border border-white/15 px-5 py-3 text-base font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
               >
                 Explore features
               </a>
             </div>
-            <div className="mt-6 flex items-center gap-4 text-xs text-slate-400">
+            <div className="mt-6 flex items-center gap-4 text-base text-slate-400">
               <div className="inline-flex items-center gap-2">
                 <span className="inline-flex h-2 w-2 rounded-full bg-primary" />{" "}
                 No credit card
@@ -158,7 +158,7 @@ export default function LandingPage() {
                 <div className="h-36 rounded-xl border border-white/10 bg-gradient-to-br from-primary/10 to-transparent" />
                 <div className="h-36 rounded-xl border border-white/10 bg-gradient-to-br from-white/10 to-transparent" />
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs text-slate-400">
+              <div className="mt-4 grid grid-cols-3 gap-3 text-center text-base text-slate-400">
                 <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2">
                   Next.js
                 </div>
@@ -180,7 +180,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Everything you need to get booked
           </h2>
-          <p className="mt-3 text-slate-300">
+          <p className="mt-3 text-base text-slate-300">
             From smart availability to beautiful booking flows—LIT Cal has you
             covered.
           </p>
@@ -201,7 +201,9 @@ export default function LandingPage() {
                 <item.Icon size={18} />
               </div>
               <h3 className="text-base font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+              <p className="mt-2 text-base text-slate-300">
+                {item.description}
+              </p>
             </div>
           ))}
         </div>
@@ -214,7 +216,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               How it works
             </h2>
-            <p className="text-slate-300">
+            <p className="text-base text-slate-300">
               A streamlined flow so invitees can book in seconds—no email
               ping‑pong.
             </p>
@@ -235,7 +237,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="text-base font-semibold">{s.title}</h3>
-                      <p className="mt-1 text-sm text-slate-300">
+                      <p className="mt-1 text-base text-slate-300">
                         {s.description}
                       </p>
                     </div>
@@ -262,20 +264,20 @@ export default function LandingPage() {
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Ready to reclaim your calendar?
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-slate-300">
+          <p className="mx-auto mt-3 max-w-2xl text-base text-slate-300">
             Set up your first event in minutes. Share the link. Get booked.
             That’s it.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <a
               href="#"
-              className="rounded-md bg-primary px-6 py-3 text-sm font-semibold tracking-wide text-neutral-950 shadow-lg ring-1 ring-primary/30 transition hover:opacity-95"
+              className="rounded-md bg-primary px-6 py-3 text-base font-semibold tracking-wide text-neutral-950 shadow-lg ring-1 ring-primary/30 transition hover:opacity-95"
             >
               Create your first event
             </a>
             <a
               href="#features"
-              className="rounded-md border border-white/15 px-6 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
+              className="rounded-md border border-white/15 px-6 py-3 text-base font-medium text-slate-200 transition hover:bg-white/5 hover:text-white"
             >
               See what’s inside
             </a>
@@ -294,18 +296,18 @@ export default function LandingPage() {
               height={22}
               className="rounded"
             />
-            <span className="text-sm text-slate-400">
+            <span className="text-base text-slate-400">
               © {new Date().getFullYear()} LIT Cal
             </span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-400">
-            <a href="#features" className="hover:text-slate-200">
+          <div className="flex items-center gap-4 text-base text-slate-400">
+            <a href="#features" className="hover:opacity-80">
               Features
             </a>
-            <a href="#how" className="hover:text-slate-200">
+            <a href="#how" className="hover:opacity-80">
               How it works
             </a>
-            <a href="#cta" className="hover:text-slate-200">
+            <a href="#cta" className="hover:opacity-80">
               Get started
             </a>
           </div>

@@ -12,7 +12,11 @@ import Link from "next/link";
 export default function PublicNavbar() {
   return (
     <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-      <div className="flex items-center gap-3">
+      <Link
+        href="/"
+        className="flex items-center gap-3"
+        aria-label="LIT Cal Home"
+      >
         <Image
           src="/logo.png"
           alt="LIT Cal"
@@ -20,30 +24,32 @@ export default function PublicNavbar() {
           height={28}
           className="rounded"
         />
-        <span className="font-semibold tracking-tight">LIT Cal</span>
-      </div>
+        <span className="text-xl md:text-2xl font-semibold tracking-tight">
+          LIT Cal
+        </span>
+      </Link>
       <div className="hidden items-center gap-6 sm:flex">
         <Link
           href="/#features"
-          className="text-sm text-slate-300 hover:text-slate-100"
+          className="text-base text-slate-300 hover:text-slate-100"
         >
           Features
         </Link>
         <Link
           href="/#how"
-          className="text-sm text-slate-300 hover:text-slate-100"
+          className="text-base text-slate-300 hover:text-slate-100"
         >
           How it works
         </Link>
         <Link
           href="/#cta"
-          className="text-sm text-slate-300 hover:text-slate-100"
+          className="text-base text-slate-300 hover:text-slate-100"
         >
           Get started
         </Link>
         <Link
           href="/auth/register"
-          className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground shadow-sm transition hover:opacity-90"
+          className="rounded-md bg-primary px-4 py-2 font-semibold text-base text-neutral-950 shadow-sm transition hover:opacity-90"
         >
           Try free
         </Link>

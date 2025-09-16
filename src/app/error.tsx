@@ -22,18 +22,18 @@ export default function GlobalError({
           Something went wrong
         </h1>
         {error?.message && (
-          <p className="mt-3 text-sm text-slate-400">{error.message}</p>
+          <p className="mt-3 text-base text-slate-300">{error.message}</p>
         )}
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             onClick={reset}
-            className="rounded-md bg-primary px-5 py-3 text-sm font-semibold tracking-wide text-neutral-950 transition hover:opacity-95"
+            className="rounded-md bg-primary px-5 py-3 text-base font-semibold tracking-wide text-neutral-950 transition hover:opacity-95"
           >
             Try again
           </button>
           <Link
             href="/"
-            className="rounded-md border border-white/10 px-5 py-3 text-sm text-slate-200 hover:bg-white/5"
+            className="rounded-md border border-white/10 px-5 py-3 text-base text-slate-200 hover:bg-white/5"
           >
             Go home
           </Link>

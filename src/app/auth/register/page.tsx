@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, User, CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,7 +21,6 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      // Create account
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,7 +29,6 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Registration failed");
 
-      // Auto-login with same credentials
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,12 +57,12 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-semibold tracking-tight">
             Create your account
           </h1>
-          <p className="mt-2 text-sm text-slate-300">
+          <p className="mt-2 text-base text-slate-300">
             No credit card required. Upgrade anytime.
           </p>
 
           {error && (
-            <div className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+            <div className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-base text-red-200">
               {error}
             </div>
           )}
@@ -77,7 +77,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
                 required
               />
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
                 required
               />
@@ -107,7 +107,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-12 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
                 required
                 minLength={6}
@@ -128,13 +128,13 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold tracking-wide text-neutral-950 transition hover:opacity-95 disabled:opacity-50"
+              className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-base font-semibold tracking-wide text-neutral-950 transition hover:opacity-95 disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Creating account..." : "Continue with email"}
             </button>
 
-            <p className="mt-4 text-sm text-slate-300">
+            <p className="mt-4 text-base text-slate-300">
               Already have an account?{" "}
               <Link
                 href="/auth/login"
@@ -149,7 +149,7 @@ export default function RegisterPage() {
         {/* Right side */}
         <div className="hidden lg:block">
           <div>
-            <p className="inline-flex items-center gap-2 text-xs text-slate-300">
+            <p className="inline-flex items-center gap-2 text-base text-slate-300">
               <span className="inline-flex h-2 w-2 rounded-full bg-primary" />{" "}
               Try Teams plan free
             </p>
@@ -168,11 +168,11 @@ export default function RegisterPage() {
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 text-primary ring-1 ring-white/10">
                     <CheckCircle2 className="h-4 w-4" />
                   </span>
-                  <p className="text-sm text-slate-300">{text}</p>
+                  <p className="text-base text-slate-300">{text}</p>
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-xs text-slate-400">
+            <p className="mt-8 text-sm text-slate-400">
               Join teams who schedule with confidence.
             </p>
           </div>

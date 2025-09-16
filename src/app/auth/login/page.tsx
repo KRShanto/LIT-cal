@@ -66,19 +66,19 @@ export default function LoginPage() {
             <h1 className="text-3xl font-semibold tracking-tight">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-base text-slate-300">
               Log in to your account
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+            <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-base text-red-200">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 rounded-md border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+            <div className="mb-4 rounded-md border border-emerald-500/20 bg-emerald-500/10 p-3 text-base text-emerald-200">
               {success}
             </div>
           )}
@@ -93,7 +93,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-3 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
               />
             </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-12 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
               />
               <button
@@ -124,7 +124,7 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="flex items-center justify-end text-sm">
+            <div className="flex items-center justify-end text-base">
               <Link
                 href="/auth/forget-password"
                 className="text-primary hover:underline"
@@ -135,13 +135,13 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="mt-3 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold tracking-wide text-neutral-950 transition hover:opacity-95 disabled:opacity-50"
+              className="mt-3 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-base font-semibold tracking-wide text-neutral-950 transition hover:opacity-95 disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            <p className="mt-4 text-left text-sm text-slate-300">
+            <p className="mt-4 text-left text-base text-slate-300">
               Don’t have an account?{" "}
               <Link
                 href="/auth/register"
@@ -169,7 +169,7 @@ export default function LoginPage() {
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 text-primary ring-1 ring-white/10">
                     <CheckCircle2 className="h-4 w-4" />
                   </span>
-                  <p className="text-sm text-slate-300">{text}</p>
+                  <p className="text-base text-slate-300">{text}</p>
                 </li>
               ))}
             </ul>
