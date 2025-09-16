@@ -71,6 +71,15 @@ You can find more details in `REQUIREMENTS.md` and `README.md` files.
 - Availability UI must support multiple slots per day.
 - Booking flow: Date → Time → Invitee Questions → Confirm.
 
+### Color scheme (Tailwind v4)
+
+- Tailwind v4 config-less theming: primary color is defined in `src/app/globals.css` via CSS variables.
+- Use `--primary` and `--primary-foreground` tokens exposed by `@theme` as `bg-primary`, `text-primary`, `text-primary-foreground`, etc.
+- Current brand accent: lime‑yellow tuned to logo
+  - Light: `--primary: oklch(0.88 0.24 112)`
+  - Dark: `--primary: oklch(0.82 0.22 112)`
+- Prefer `bg-primary` for filled buttons and `border-white/15 hover:bg-white/5` for secondary on dark backgrounds.
+
 ## Extended Version (future)
 
 - Keep structure ready for:
