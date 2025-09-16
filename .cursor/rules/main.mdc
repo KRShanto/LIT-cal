@@ -55,6 +55,7 @@ You can find more details in `REQUIREMENTS.md` and `README.md` files.
 
 ## Naming / Conventions
 
+- Use `snake_case` for component file naming.
 - Use `camelCase` in code, `snake_case` avoided in DB.
 - Use `cuid()` for IDs (matches Prisma default).
 - Use `slug` for public booking URLs instead of exposing IDs.
