@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import PublicNavbar from "@/components/public-navbar";
 import {
   CalendarClock,
   Clock,
@@ -96,44 +97,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-neutral-950 text-slate-100">
       {/* Navbar */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-neutral-950/80 backdrop-blur">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="LIT Cal"
-              width={28}
-              height={28}
-              className="rounded"
-            />
-            <span className="font-semibold tracking-tight">LIT Cal</span>
-          </div>
-          <div className="hidden items-center gap-6 sm:flex">
-            <a
-              href="#features"
-              className="text-sm text-slate-300 hover:text-slate-100"
-            >
-              Features
-            </a>
-            <a
-              href="#how"
-              className="text-sm text-slate-300 hover:text-slate-100"
-            >
-              How it works
-            </a>
-            <a
-              href="#cta"
-              className="text-sm text-slate-300 hover:text-slate-100"
-            >
-              Get started
-            </a>
-            <a
-              href="#cta"
-              className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground shadow-sm transition hover:opacity-90"
-            >
-              Try free
-            </a>
-          </div>
-        </nav>
+        <PublicNavbar />
       </header>
 
       {/* Hero */}
