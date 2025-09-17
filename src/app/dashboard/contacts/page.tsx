@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getDbUser } from "@/lib/auth";
 import ContactsClient from "@/app/dashboard/contacts/contacts-client";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,10 @@ type SearchParams = {
 };
 
 const MAX_CONTACTS = 15;
+
+export const metadata: Metadata = {
+  title: "Contacts",
+};
 
 // TODO: make this page responsive
 export default async function Page({
