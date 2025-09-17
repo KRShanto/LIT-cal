@@ -60,6 +60,7 @@ You can find more details in `REQUIREMENTS.md` and `README.md` files.
 - Use `cuid()` for IDs (matches Prisma default).
 - Use `slug` for public booking URLs instead of exposing IDs.
 - Use `actions` directory for Next.js server actions.
+- If a page needs to be client component ("use client"), then create another component `{page}-client.tsx` and make that client component instead and keep the main `page.tsx` server component.
 
 ## Security
 
