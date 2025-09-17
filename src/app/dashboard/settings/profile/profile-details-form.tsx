@@ -1,8 +1,11 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { Camera, User, AtSign, Mail } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { Camera, User, AtSign, Mail, Loader2 } from "lucide-react";
 import TimezonePicker from "@/components/timezone-picker";
+import { updateProfile } from "@/actions/user/update-profile";
+import { genUploader } from "uploadthing/client";
+import type { OurFileRouter } from "@/lib/uploadthing";
 
 export default function ProfileDetailsForm({
   initial,
@@ -23,6 +26,35 @@ export default function ProfileDetailsForm({
     initial.imageUrl || null
   );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { uploadFiles } = genUploader<OurFileRouter>();
+
+  const handleSubmit = () => {
+    setSubmitError(null);
+    startTransition(async () => {
+      try {
+        let imageUrl = avatarUrl;
+        if (avatarFile) {
+          const res = await uploadFiles("imageUploader", {
+            files: [avatarFile],
+          });
+          imageUrl = res?.[0]?.ufsUrl ?? imageUrl;
+        }
+        const result = await updateProfile({
+          name,
+          username,
+          publicEmail,
+          timezone,
+          imageUrl,
+        });
+        if (!result.ok) setSubmitError(result.error || "Failed to save");
+      } catch (err: unknown) {
+        setSubmitError(err instanceof Error ? err.message : "Failed to save");
+      }
+    });
+  };
 
   return (
     <section className="rounded-lg border border-white/10 bg-neutral-950/50 p-6">
@@ -63,8 +95,12 @@ export default function ProfileDetailsForm({
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
+                  const file = e.target.files?.[0] || null;
+                  setAvatarFile(file);
+                  if (!file) {
+                    setAvatarUrl(initial.imageUrl || null);
+                    return;
+                  }
                   const url = URL.createObjectURL(file);
                   setAvatarUrl(url);
                 }}
@@ -83,6 +119,7 @@ export default function ProfileDetailsForm({
                   onClick={() => {
                     setAvatarUrl(null);
                     if (fileInputRef.current) fileInputRef.current.value = "";
+                    setAvatarFile(null);
                   }}
                   className="rounded-md border border-white/10 px-4 py-2 text-base text-slate-200 hover:bg-white/5"
                   aria-label="Remove profile picture"
@@ -133,12 +170,20 @@ export default function ProfileDetailsForm({
       </div>
 
       <div className="mt-6 flex items-center gap-3">
-        <button className="rounded-md bg-primary px-5 py-2.5 text-base font-medium text-neutral-950">
-          Save changes
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isPending}
+          aria-busy={isPending}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-base font-medium text-neutral-950 disabled:opacity-60"
+        >
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPending ? "Saving..." : "Save changes"}
         </button>
         <button className="rounded-md border border-white/10 px-5 py-2.5 text-base text-slate-200 hover:bg-white/5">
           Cancel
         </button>
+        {submitError && <p className="text-red-300 text-base">{submitError}</p>}
       </div>
     </section>
   );
