@@ -65,6 +65,19 @@ export default function ProfileDetailsForm() {
               >
                 Choose image
               </button>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAvatarUrl(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="rounded-md border border-white/10 px-4 py-2 text-base text-slate-200 hover:bg-white/5"
+                  aria-label="Remove profile picture"
+                >
+                  Remove
+                </button>
+              )}
             </div>
           </div>
         </div>
