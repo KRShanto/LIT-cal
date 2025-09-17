@@ -17,11 +17,14 @@ export async function changePassword(input: ChangePasswordInput) {
   const newPassword = input.newPassword || "";
   const confirmPassword = input.confirmPassword || "";
 
-  if (newPassword.length < 6) {
+  const passwordLength =
+    (process.env.MIN_PASSWORD_LEN as number | undefined) || 6;
+
+  if (newPassword.length < passwordLength) {
     return {
       ok: false,
       field: "newPassword",
-      error: "Password must be at least 6 characters",
+      error: `Password must be at least ${passwordLength} characters`,
     } as const;
   }
   if (newPassword !== confirmPassword) {
