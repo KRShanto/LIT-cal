@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10 p-6">
+    <div className="mx-auto w-full max-w-4xl space-y-10">
       {/* Profile card skeleton */}
       <section className="rounded-lg border border-white/10 bg-neutral-950/50 p-6">
         <div className="h-6 w-40 animate-pulse rounded bg-white/10" />
