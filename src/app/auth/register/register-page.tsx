@@ -154,7 +154,6 @@ export default function RegisterPage() {
                 className="w-full rounded-md border border-white/10 bg-neutral-950 py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
                 required
-                minLength={6}
               />
               <button
                 type="button"
@@ -168,6 +167,11 @@ export default function RegisterPage() {
                   <Eye className="h-5 w-5" />
                 )}
               </button>
+              {fieldError.field === "password" && (
+                <p className="mt-1 text-sm text-red-300">
+                  {fieldError.message}
+                </p>
+              )}
             </div>
 
             <button

@@ -14,6 +14,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if password is at least n characters
+    const passwordLength =
+      (process.env.MIN_PASSWORD_LEN as number | undefined) || 6;
+    if (password.length < passwordLength) {
+      return NextResponse.json(
+        {
+          error: `Password must be at least ${passwordLength} characters`,
+          field: "password",
+        },
+        { status: 400 }
+      );
+    }
+
     // Check if email or username already exists
     const existing = await prisma.user.findFirst({
       where: {
