@@ -1,5 +1,5 @@
 import LandingPage from "@/components/landing-page";
-import { getUser } from "@/lib/auth";
+import { getAuthUser } from "@/lib/auth";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const user = await getUser();
+  const user = await getAuthUser();
 
   if (!user) {
     return <LandingPage />;

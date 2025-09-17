@@ -1,14 +1,14 @@
 import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Topbar from "@/components/dashboard/topbar";
-import { requireAuth } from "@/lib/auth";
+import { getDbUser } from "@/lib/auth";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await requireAuth();
+  const user = await getDbUser();
 
   return (
     <div className="min-h-screen bg-neutral-950 text-slate-100 overflow-x-hidden">
