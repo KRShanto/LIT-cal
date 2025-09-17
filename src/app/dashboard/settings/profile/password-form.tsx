@@ -1,12 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { Lock } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Lock, Loader2, CheckCircle2 } from "lucide-react";
+import { changePassword } from "@/actions/user/change-password";
 
 export default function PasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleChangePassword = () => {
+    setError(null);
+    setSuccess(false);
+    startTransition(async () => {
+      const res = await changePassword({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+      if (!res.ok) {
+        setError(res.error || "Failed to change password");
+        return;
+      }
+      setSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    });
+  };
 
   return (
     <section className="rounded-lg border border-white/10 bg-neutral-950/50 p-6">
@@ -50,10 +74,24 @@ export default function PasswordForm() {
         </div>
       </div>
 
-      <div className="mt-6">
-        <button className="rounded-md bg-primary px-5 py-2.5 text-base font-medium text-neutral-950">
-          Update password
+      <div className="mt-6 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleChangePassword}
+          disabled={isPending}
+          aria-busy={isPending}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-base font-medium text-neutral-950 disabled:opacity-60"
+        >
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPending ? "Updating…" : "Update password"}
         </button>
+        {success && (
+          <span className="inline-flex items-center gap-2 text-base text-green-300">
+            <CheckCircle2 className="h-5 w-5" />
+            Password updated
+          </span>
+        )}
+        {error && <span className="text-base text-red-300">{error}</span>}
       </div>
     </section>
   );
