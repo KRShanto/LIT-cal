@@ -11,12 +11,12 @@ export default async function DashboardLayout({
   const user = await getDbUser();
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-slate-100 overflow-x-hidden">
-      <div className="flex">
+    <div className="h-screen bg-neutral-950 text-slate-100 overflow-hidden">
+      <div className="flex h-full">
         <Sidebar user={user} />
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col">
           <Topbar />
-          <main className="flex-1 px-6 py-6">{children}</main>
+          <main className="flex-1 overflow-y-auto px-6 py-6">{children}</main>
         </div>
       </div>
     </div>
