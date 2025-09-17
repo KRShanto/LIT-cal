@@ -180,9 +180,7 @@ export default function ProfileDetailsForm({
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           {isPending ? "Saving..." : "Save changes"}
         </button>
-        <button className="rounded-md border border-white/10 px-5 py-2.5 text-base text-slate-200 hover:bg-white/5">
-          Cancel
-        </button>
+
         {submitError && <p className="text-red-300 text-base">{submitError}</p>}
       </div>
     </section>
