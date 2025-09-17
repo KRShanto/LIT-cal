@@ -1,4 +1,10 @@
-export default function DashboardPage() {
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
+
+export default async function DashboardPage() {
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       <section className="rounded-xl border border-white/10 bg-neutral-900 p-5">
