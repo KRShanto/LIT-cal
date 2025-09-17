@@ -1,15 +1,27 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Camera, User, AtSign, Mail } from "lucide-react";
 import TimezonePicker from "@/components/timezone-picker";
 
-export default function ProfileDetailsForm() {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [publicEmail, setPublicEmail] = useState("");
-  const [timezone, setTimezone] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+export default function ProfileDetailsForm({
+  initial,
+}: {
+  initial: {
+    name: string;
+    username: string;
+    publicEmail: string;
+    timezone: string;
+    imageUrl: string | null;
+  };
+}) {
+  const [name, setName] = useState(initial.name || "");
+  const [username, setUsername] = useState(initial.username || "");
+  const [publicEmail, setPublicEmail] = useState(initial.publicEmail || "");
+  const [timezone, setTimezone] = useState(initial.timezone || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    initial.imageUrl || null
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (

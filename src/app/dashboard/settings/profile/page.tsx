@@ -1,5 +1,7 @@
 import ProfileClient from "./profile-client";
+import { getDbUser } from "@/lib/auth";
 
 export default async function ProfileSettingsPage() {
-  return <ProfileClient />;
+  const user = await getDbUser();
+  return <ProfileClient user={user} />;
 }
