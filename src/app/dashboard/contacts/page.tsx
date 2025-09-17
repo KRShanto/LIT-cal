@@ -11,8 +11,9 @@ type SearchParams = {
   vh?: string;
 };
 
-const MAX_CONTACTS = 20;
+const MAX_CONTACTS = 15;
 
+// TODO: make this page responsive
 export default async function Page({
   searchParams,
 }: {
