@@ -4,17 +4,8 @@ let cachedOptions: TimezoneOption[] | null = null;
 
 function formatLabel(tz: string): string {
   try {
-    const dtf = new Intl.DateTimeFormat("en-US", {
-      timeZone: tz,
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZoneName: "shortOffset",
-    });
-    const name = dtf
-      .formatToParts(new Date())
-      .find((p) => p.type === "timeZoneName")?.value;
-    const pretty = name?.replace("GMT", "GMT") || "GMT";
-    return `(${pretty}) ${tz}`;
+    // Show only the IANA timezone path (e.g., "Asia/Dhaka") without any offset prefix
+    return tz;
   } catch {
     return tz;
   }
