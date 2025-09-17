@@ -13,16 +13,28 @@ import {
   Plus,
   Copy,
   Check,
+  LucideIcon,
 } from "lucide-react";
 import { DbUser } from "@/lib/auth";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", Icon: LayoutDashboard },
-  { href: "/scheduling", label: "Scheduling", Icon: CalendarClock },
-  { href: "/meetings", label: "Meetings", Icon: CalendarClock },
-  { href: "/availability", label: "Availability", Icon: CalendarRange },
-  { href: "/contacts", label: "Contacts", Icon: Users },
-  { href: "/settings", label: "Settings", Icon: Settings },
+type NavItem = {
+  href: string;
+  label: string;
+  Icon: LucideIcon;
+  exact?: boolean;
+};
+
+const navItems: NavItem[] = [
+  { href: "/dashboard", label: "Overview", Icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/scheduling", label: "Scheduling", Icon: CalendarClock },
+  { href: "/dashboard/meetings", label: "Meetings", Icon: CalendarClock },
+  {
+    href: "/dashboard/availability",
+    label: "Availability",
+    Icon: CalendarRange,
+  },
+  { href: "/dashboard/contacts", label: "Contacts", Icon: Users },
+  { href: "/dashboard/settings", label: "Settings", Icon: Settings },
 ];
 
 export default function Sidebar({ user }: { user: DbUser }) {
@@ -67,8 +79,10 @@ export default function Sidebar({ user }: { user: DbUser }) {
 
         <nav className="mt-10 space-y-1">
           {navItems.map((item, index) => {
-            const active =
-              pathname === item.href || pathname?.startsWith(item.href + "/");
+            const path = pathname || "/";
+            const active = item.exact
+              ? path === item.href
+              : path === item.href || path.startsWith(item.href + "/");
             return (
               <Link
                 key={index}
