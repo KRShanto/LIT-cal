@@ -11,7 +11,7 @@ export default function Topbar() {
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
         </button>
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/settings/profile"
           className="flex items-center gap-2 rounded-md border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
         >
           <Image
