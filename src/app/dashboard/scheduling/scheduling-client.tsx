@@ -2,17 +2,42 @@
 
 import React, { useState } from "react";
 import { type ScheduleOption } from "./ui/schedule-select";
-import EventTypeForm from "./event-type-form";
+import EventTypeForm, { type EventTypeFormValues } from "./event-type-form";
+import { type QuestionDraft } from "./questions-list";
+import { type QuestionType } from "./ui/type-select";
+
+type QuestionSeed = {
+  idx: number;
+  question: string;
+  type: QuestionType;
+  required: boolean;
+  options: string[] | null;
+};
+
+type EventTypeItem = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  durationMinutes: number;
+  scheduleId: string | null;
+  isActive: boolean;
+  isPublic: boolean;
+  questions?: QuestionSeed[];
+};
 
 export default function SchedulingClient({
   schedules = [],
+  eventTypes = [],
 }: {
   schedules?: ScheduleOption[];
+  eventTypes?: EventTypeItem[];
 }) {
-  const [isActive, setIsActive] = useState(true);
-  const [isPublic, setIsPublic] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [initial, setInitial] = useState<
+    (Partial<EventTypeFormValues> & { questions?: QuestionDraft[] }) | null
+  >(null);
 
   return (
     <div className="space-y-6">
@@ -22,6 +47,7 @@ export default function SchedulingClient({
           type="button"
           onClick={() => {
             setEditingId(null);
+            setInitial(null);
             setDrawerOpen(true);
           }}
           className="rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95"
@@ -30,49 +56,84 @@ export default function SchedulingClient({
         </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-md border border-white/10 p-4 text-slate-400">
-            Your event types will appear here after creation.
-          </div>
+      {eventTypes.length === 0 ? (
+        <div className="rounded-md border border-white/10 p-6 text-slate-400">
+          No event types yet.
         </div>
-
-        <div className="space-y-4">
-          <div className="rounded-md border border-white/10 p-4">
-            <h3 className="mb-3 text-base font-medium text-white">
-              Visibility & Schedule
-            </h3>
-            <label className="mb-3 flex items-center justify-between text-slate-200">
-              <span>Active</span>
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-              />
-            </label>
-            <label className="mb-3 flex items-center justify-between text-slate-200">
-              <span>Public</span>
-              <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-              />
-            </label>
-          </div>
-
-          <div className="rounded-md border border-white/10 p-4 text-slate-400">
-            Select an event type to edit or delete (coming soon).
-          </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {eventTypes.map((et) => (
+            <button
+              key={et.id}
+              type="button"
+              onClick={() => {
+                setEditingId(et.id);
+                const questions: QuestionDraft[] = (et.questions || []).map(
+                  (q) => ({
+                    idx: q.idx,
+                    question: q.question,
+                    type: q.type,
+                    required: q.required,
+                    options: q.options || [],
+                    expanded: false,
+                  })
+                );
+                setInitial({
+                  title: et.title,
+                  slug: et.slug,
+                  description: et.description ?? "",
+                  duration: et.durationMinutes,
+                  scheduleId: et.scheduleId,
+                  questions,
+                });
+                setDrawerOpen(true);
+              }}
+              className="group rounded-xl border border-white/10 bg-neutral-950/60 p-4 text-left shadow-sm ring-1 ring-transparent transition hover:bg-white/5 hover:ring-white/10"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-white">{et.title}</h3>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-400">
+                    {et.description || "No description"}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-300">
+                  {et.durationMinutes} min
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-xs">
+                <span
+                  className={`rounded px-2 py-0.5 ${
+                    et.isActive
+                      ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                      : "bg-yellow-500/10 text-yellow-300 border border-yellow-500/20"
+                  }`}
+                >
+                  {et.isActive ? "Active" : "Inactive"}
+                </span>
+                <span
+                  className={`rounded px-2 py-0.5 ${
+                    et.isPublic
+                      ? "bg-blue-500/10 text-blue-300 border border-blue-500/20"
+                      : "bg-slate-500/10 text-slate-300 border border-slate-500/20"
+                  }`}
+                >
+                  {et.isPublic ? "Public" : "Private"}
+                </span>
+              </div>
+            </button>
+          ))}
         </div>
-      </div>
+      )}
 
       <EventTypeForm
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         schedules={schedules}
-        isActive={isActive}
-        isPublic={isPublic}
+        isActive={true}
+        isPublic={true}
         editingId={editingId}
+        initial={initial ?? undefined}
       />
     </div>
   );

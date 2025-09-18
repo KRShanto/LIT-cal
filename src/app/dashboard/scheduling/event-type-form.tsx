@@ -41,6 +41,7 @@ const EventTypeForm = forwardRef(function EventTypeForm(
     isActive,
     isPublic,
     editingId,
+    initial,
   }: {
     isOpen: boolean;
     onClose: () => void;
@@ -48,18 +49,23 @@ const EventTypeForm = forwardRef(function EventTypeForm(
     isActive: boolean;
     isPublic: boolean;
     editingId?: string | null;
+    initial?: Partial<EventTypeFormValues> & { questions?: QuestionDraft[] };
   },
   ref: React.Ref<{ getValues: () => EventTypeFormValues }>
 ) {
   const router = useRouter();
   // Primary fields
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-  const [duration, setDuration] = useState<number>(30);
-  const [scheduleId, setScheduleId] = useState<string | null>(null);
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [duration, setDuration] = useState<number>(initial?.duration ?? 30);
+  const [scheduleId, setScheduleId] = useState<string | null>(
+    initial?.scheduleId ?? null
+  );
   // Questions
-  const [questions, setQuestions] = useState<QuestionDraft[]>([]);
+  const [questions, setQuestions] = useState<QuestionDraft[]>(
+    initial?.questions ?? []
+  );
   // UI helpers
   const [busy, setBusy] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +78,26 @@ const EventTypeForm = forwardRef(function EventTypeForm(
     if (last) last.scrollIntoView({ behavior: "smooth", block: "end" });
     setScrollToEndOnNextPaint(false);
   }, [scrollToEndOnNextPaint, questions.length]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (editingId && initial) {
+      setTitle(initial.title ?? "");
+      setSlug(initial.slug ?? "");
+      setDescription(initial.description ?? "");
+      setDuration(initial.duration ?? 30);
+      setScheduleId(initial.scheduleId ?? null);
+      setQuestions(initial.questions ?? []);
+    } else if (!editingId) {
+      // Reset for create mode
+      setTitle("");
+      setSlug("");
+      setDescription("");
+      setDuration(30);
+      setScheduleId(null);
+      setQuestions([]);
+    }
+  }, [isOpen, editingId, initial]);
 
   const defaultScheduleId = useMemo(() => {
     const def = schedules.find((s) => s.isDefault);
@@ -258,30 +284,32 @@ const EventTypeForm = forwardRef(function EventTypeForm(
             <button
               type="button"
               disabled={busy}
-              onClick={onUpdate}
-              className="rounded-md border border-white/10 px-3 py-2 text-slate-200 hover:bg-white/5"
-            >
-              Save
-            </button>
-          )}
-          {editingId && (
-            <button
-              type="button"
-              disabled={busy}
               onClick={onDelete}
               className="rounded-md border border-red-600/40 bg-red-600/20 px-3 py-2 text-red-300 hover:bg-red-600/30"
             >
               Delete
             </button>
           )}
-          <button
-            type="button"
-            disabled={busy}
-            onClick={onCreate}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Create
-          </button>
+          {editingId && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onUpdate}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Save
+            </button>
+          )}
+          {!editingId && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onCreate}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Create
+            </button>
+          )}
         </div>
       </div>
     </Drawer>
