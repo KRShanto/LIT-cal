@@ -39,7 +39,7 @@ const EventTypeForm = forwardRef(function EventTypeForm(
     onClose,
     schedules,
     isActive,
-    isPublic,
+    onIsActiveChange,
     editingId,
     initial,
   }: {
@@ -47,7 +47,7 @@ const EventTypeForm = forwardRef(function EventTypeForm(
     onClose: () => void;
     schedules: ScheduleOption[];
     isActive: boolean;
-    isPublic: boolean;
+    onIsActiveChange: (value: boolean) => void;
     editingId?: string | null;
     initial?: Partial<EventTypeFormValues> & { questions?: QuestionDraft[] };
   },
@@ -127,7 +127,6 @@ const EventTypeForm = forwardRef(function EventTypeForm(
       durationMinutes: duration,
       scheduleId: scheduleId || undefined,
       isActive,
-      isPublic,
       questions: questions.map((q) => ({
         idx: q.idx,
         question: q.question.trim(),
@@ -156,7 +155,6 @@ const EventTypeForm = forwardRef(function EventTypeForm(
       durationMinutes: duration,
       scheduleId: scheduleId || undefined,
       isActive,
-      isPublic,
       questions: questions.map((q) => ({
         idx: q.idx,
         question: q.question.trim(),
@@ -247,6 +245,29 @@ const EventTypeForm = forwardRef(function EventTypeForm(
                 className="mt-1 min-h-24 w-full rounded-md border border-white/10 bg-neutral-950 px-3 py-2 text-base text-slate-100 outline-none focus:ring-2 focus:ring-primary"
                 placeholder="What is this meeting about?"
               />
+            </div>
+            <div className="space-y-3 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-base text-slate-300">Active</label>
+                  <p className="text-sm text-slate-400">
+                    Allow bookings for this event type
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onIsActiveChange(!isActive)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    isActive ? "bg-primary" : "bg-neutral-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isActive ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>

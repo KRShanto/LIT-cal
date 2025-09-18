@@ -22,7 +22,6 @@ type EventTypeItem = {
   durationMinutes: number;
   scheduleId: string | null;
   isActive: boolean;
-  isPublic: boolean;
   questions?: QuestionSeed[];
 };
 
@@ -35,6 +34,7 @@ export default function SchedulingClient({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isActive, setIsActive] = useState(true);
   const [initial, setInitial] = useState<
     (Partial<EventTypeFormValues> & { questions?: QuestionDraft[] }) | null
   >(null);
@@ -48,6 +48,7 @@ export default function SchedulingClient({
           onClick={() => {
             setEditingId(null);
             setInitial(null);
+            setIsActive(true);
             setDrawerOpen(true);
           }}
           className="rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95"
@@ -68,6 +69,7 @@ export default function SchedulingClient({
               type="button"
               onClick={() => {
                 setEditingId(et.id);
+                setIsActive(et.isActive);
                 const questions: QuestionDraft[] = (et.questions || []).map(
                   (q) => ({
                     idx: q.idx,
@@ -111,15 +113,6 @@ export default function SchedulingClient({
                 >
                   {et.isActive ? "Active" : "Inactive"}
                 </span>
-                <span
-                  className={`rounded px-2 py-0.5 ${
-                    et.isPublic
-                      ? "bg-blue-500/10 text-blue-300 border border-blue-500/20"
-                      : "bg-slate-500/10 text-slate-300 border border-slate-500/20"
-                  }`}
-                >
-                  {et.isPublic ? "Public" : "Private"}
-                </span>
               </div>
             </button>
           ))}
@@ -130,8 +123,8 @@ export default function SchedulingClient({
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         schedules={schedules}
-        isActive={true}
-        isPublic={true}
+        isActive={isActive}
+        onIsActiveChange={setIsActive}
         editingId={editingId}
         initial={initial ?? undefined}
       />
