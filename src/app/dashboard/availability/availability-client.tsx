@@ -2,9 +2,18 @@
 
 import React, { useMemo, useState } from "react";
 import TimezonePicker from "@/components/timezone-picker";
-import { X, Plus, CalendarPlus, Clock, Trash2, Loader2 } from "lucide-react";
+import {
+  X,
+  Plus,
+  CalendarPlus,
+  Clock,
+  Trash2,
+  Loader2,
+  Pencil,
+} from "lucide-react";
 import { createSchedule } from "@/actions/schedules/create-schedule";
 import { deleteSchedule } from "@/actions/schedules/delete-schedule";
+import { updateSchedule } from "@/actions/schedules/update-schedule";
 
 type Weekday =
   | "MONDAY"
@@ -77,6 +86,8 @@ export default function AvailabilityClient({
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Schedule | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   function openConfirmDialog(data: { id: string; name: string }) {
     setConfirmOpen(data);
@@ -291,16 +302,39 @@ export default function AvailabilityClient({
                       Timezone: {sch.timezone || "—"}
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openConfirmDialog({ id: sch.id, name: sch.name })
-                    }
-                    className="rounded-md border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:border-red-500/70 hover:bg-red-500/10 hover:text-red-400"
-                    title="Delete schedule"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditing(sch);
+                        setScheduleName(sch.name);
+                        setTimezone(sch.timezone || defaultTimezone);
+                        setIsDefault(sch.isDefault);
+                        setSlots(
+                          (sch.slots || []).map((s) => ({
+                            weekday: s.weekday,
+                            startMinutes: s.startMinutes,
+                            endMinutes: s.endMinutes,
+                          }))
+                        );
+                        openCreateModal();
+                      }}
+                      className="rounded-md border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:border-blue-500/60 hover:bg-blue-500/10 hover:text-blue-400"
+                      title="Edit schedule"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openConfirmDialog({ id: sch.id, name: sch.name })
+                      }
+                      className="rounded-md border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:border-red-500/70 hover:bg-red-500/10 hover:text-red-400"
+                      title="Delete schedule"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Weekly grid */}
@@ -549,15 +583,63 @@ export default function AvailabilityClient({
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={submit}
-                disabled={isCreating}
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
-                Create
-              </button>
+              {editing ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsSavingEdit(true);
+                    const res = await updateSchedule({
+                      id: editing.id,
+                      name: scheduleName.trim(),
+                      timezone,
+                      isDefault,
+                      slots,
+                    });
+                    if (!res.ok) {
+                      alert(res.error);
+                      setIsSavingEdit(false);
+                      return;
+                    }
+                    setSchedules((prev) =>
+                      prev.map((s) =>
+                        s.id === editing.id
+                          ? {
+                              ...s,
+                              name: scheduleName.trim(),
+                              timezone,
+                              isDefault,
+                              // Cast for UI only; persisted via action
+                              slots: slots as unknown as {
+                                id: string;
+                                weekday: Weekday;
+                                startMinutes: number;
+                                endMinutes: number;
+                              }[],
+                            }
+                          : s
+                      )
+                    );
+                    setIsSavingEdit(false);
+                    setEditing(null);
+                    closeCreateModal();
+                  }}
+                  disabled={isSavingEdit}
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSavingEdit && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
+                  Save
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={isCreating}
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
+                  Create
+                </button>
+              )}
             </div>
           </div>
         </div>
