@@ -13,7 +13,7 @@ export default async function Page() {
   return (
     <AvailabilityClient
       defaultTimezone={user.timezone ?? ""}
-      initialSchedules={schedules}
+      schedules={schedules}
     />
   );
 }
