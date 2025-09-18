@@ -54,45 +54,42 @@ export default function AvailabilityClient({
   defaultTimezone?: string;
   schedules?: Schedule[];
 }) {
-  const [open, setOpen] = useState(false);
-  const [createVisible, setCreateVisible] = useState(false);
-  const [slots, setSlots] = useState<Slot[]>([]); // prefill for modal
-  const [confirmOpen, setConfirmOpen] = useState<{
+  // Modal state: create/edit dialog
+  const [isCreateEditOpen, setIsCreateEditOpen] = useState(false);
+  const [isCreateEditVisible, setIsCreateEditVisible] = useState(false);
+  const [prefillSlots, setPrefillSlots] = useState<Slot[]>([]);
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+
+  // Delete confirmation state
+  const [confirmTarget, setConfirmTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
-  const [confirmVisible, setConfirmVisible] = useState(false);
-  // handled in child modals
-  const [editing, setEditing] = useState<Schedule | null>(null);
-  // handled in child modals
+  const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
   function openConfirmDialog(data: { id: string; name: string }) {
-    setConfirmOpen(data);
-    setTimeout(() => setConfirmVisible(true), 0);
+    setConfirmTarget(data);
+    setTimeout(() => setIsConfirmVisible(true), 0);
   }
 
   function closeConfirmDialog() {
-    setConfirmVisible(false);
-    setTimeout(() => setConfirmOpen(null), 180);
+    setIsConfirmVisible(false);
+    setTimeout(() => setConfirmTarget(null), 180);
   }
-  // Simple confirm modal state (no close animation)
-
-  // Note: per-slot removal UI is not present in the current design.
-  // If needed later, implement removeSlot and expose remove controls.
 
   function resetForm() {
-    setSlots([]);
+    setPrefillSlots([]);
   }
 
   function openCreateModal() {
-    setOpen(true);
-    setTimeout(() => setCreateVisible(true), 0);
+    setIsCreateEditOpen(true);
+    setTimeout(() => setIsCreateEditVisible(true), 0);
   }
 
   function closeCreateModal() {
-    setCreateVisible(false);
+    setIsCreateEditVisible(false);
     setTimeout(() => {
-      setOpen(false);
+      setIsCreateEditOpen(false);
       resetForm();
     }, 180);
   }
@@ -127,8 +124,8 @@ export default function AvailabilityClient({
         <SchedulesList
           schedules={schedules}
           onEdit={(sch: ScheduleCard) => {
-            setEditing(sch as unknown as Schedule);
-            setSlots(
+            setEditingSchedule(sch as unknown as Schedule);
+            setPrefillSlots(
               (sch.slots || []).map((s) => ({
                 weekday: s.weekday,
                 startMinutes: s.startMinutes,
@@ -145,17 +142,17 @@ export default function AvailabilityClient({
 
       {/* Create/Edit modal */}
       <CreateEditModal
-        isOpen={open}
-        visible={createVisible}
+        isOpen={isCreateEditOpen}
+        visible={isCreateEditVisible}
         defaultTimezone={defaultTimezone}
         editing={
-          editing
+          editingSchedule
             ? {
-                id: editing.id,
-                name: editing.name,
-                timezone: editing.timezone,
-                isDefault: editing.isDefault,
-                slots: slots,
+                id: editingSchedule.id,
+                name: editingSchedule.name,
+                timezone: editingSchedule.timezone,
+                isDefault: editingSchedule.isDefault,
+                slots: prefillSlots,
               }
             : null
         }
@@ -167,14 +164,14 @@ export default function AvailabilityClient({
         title="Delete schedule"
         message={
           <span>
-            Are you sure you want to delete &quot;{confirmOpen?.name}&quot;?
+            Are you sure you want to delete &quot;{confirmTarget?.name}&quot;?
             This cannot be undone.
           </span>
         }
-        isOpen={Boolean(confirmOpen)}
-        visible={confirmVisible}
+        isOpen={Boolean(confirmTarget)}
+        visible={isConfirmVisible}
         onCancel={closeConfirmDialog}
-        scheduleId={confirmOpen?.id}
+        scheduleId={confirmTarget?.id}
       />
     </div>
   );
