@@ -8,6 +8,8 @@ type Props = {
   value: string;
   onChange: (tz: string) => void;
   placeholder?: string;
+  size?: "sm" | "md";
+  background?: "default" | "input";
 };
 
 /**
@@ -28,6 +30,8 @@ export default function TimezonePicker({
   value,
   onChange,
   placeholder = "Select timezone",
+  size = "md",
+  background = "default",
 }: Props) {
   // Local open/close state for the popover
   const [open, setOpen] = useState(false);
@@ -84,16 +88,33 @@ export default function TimezonePicker({
     [options, value]
   );
 
+  const isSm = size === "sm";
+  const bgTrigger =
+    background === "input" ? "bg-neutral-900" : "bg-neutral-950";
+  const triggerClass = isSm
+    ? `flex h-10 w-full items-center justify-between rounded-md border border-white/10 ${bgTrigger} px-3 text-sm text-slate-100 outline-none transition hover:bg-white/5 focus:ring-2 focus:ring-primary`
+    : `flex h-12 w-full items-center justify-between rounded-md border border-white/10 ${bgTrigger} px-3 text-lg text-slate-100 outline-none transition hover:bg-white/5 focus:ring-2 focus:ring-primary`;
+  const globeCls = isSm ? "h-4 w-4 text-slate-400" : "h-5 w-5 text-slate-400";
+  const clockSizeCls = isSm ? "h-3.5 w-3.5" : "h-4 w-4";
+  const timeTextCls = isSm ? "text-xs" : "text-base";
+  const chevronCls = isSm ? "h-3.5 w-3.5" : "h-4 w-4";
+  const searchInputCls = isSm
+    ? "w-full bg-transparent py-1.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none"
+    : "w-full bg-transparent py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none";
+  const optionTextCls = isSm ? "text-sm" : "text-base";
+  const optionTimeCls = isSm ? "text-xs" : "text-sm";
+  const listMaxH = isSm ? "max-h-60" : "max-h-72";
+
   return (
     <div ref={containerRef} className="relative">
       {/* Trigger button mirrors input styling and shows current time on the right */}
       <button
         type="button"
         onClick={() => setOpen((s) => !s)}
-        className="flex h-12 w-full items-center justify-between rounded-md border border-white/10 bg-neutral-950 px-3 text-lg text-slate-100 outline-none transition hover:bg-white/5 focus:ring-2 focus:ring-primary"
+        className={triggerClass}
       >
         <span className="flex items-center gap-2">
-          <Globe className="h-5 w-5 text-slate-400" />
+          <Globe className={globeCls} />
           <span className={value ? "text-slate-100" : "text-slate-500"}>
             {value ? selectedLabel : placeholder}
           </span>
@@ -101,30 +122,38 @@ export default function TimezonePicker({
         <span className="flex items-center gap-2 text-slate-400">
           {value && (
             <>
-              <Clock className="h-4 w-4" />
-              <span className="text-base">{nowInTz}</span>
+              <Clock className={clockSizeCls} />
+              <span className={timeTextCls}>{nowInTz}</span>
             </>
           )}
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className={chevronCls} />
         </span>
       </button>
 
       {/* Dropdown with search box and fast, virtualized-feel list (simple map for now) */}
       {open && (
-        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-md border border-white/10 bg-neutral-950 shadow-lg">
+        <div
+          className={`absolute z-50 mt-2 w-full overflow-hidden rounded-md border border-white/10 ${
+            background === "input" ? "bg-neutral-900" : "bg-neutral-950"
+          } shadow-lg`}
+        >
           {/* Search header */}
           <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search
+              className={
+                isSm ? "h-3.5 w-3.5 text-slate-400" : "h-4 w-4 text-slate-400"
+              }
+            />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search timezones"
-              className="w-full bg-transparent py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none"
+              className={searchInputCls}
             />
           </div>
           {/* Options list */}
-          <ul className="max-h-72 overflow-y-auto py-1">
+          <ul className={`${listMaxH} overflow-y-auto py-1`}>
             {filtered.map((o) => (
               <li key={o.value}>
                 <button
@@ -134,17 +163,23 @@ export default function TimezonePicker({
                     setOpen(false);
                     setQuery("");
                   }}
-                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-base hover:bg-white/5 ${
+                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left ${optionTextCls} hover:bg-white/5 ${
                     value === o.value
                       ? "bg-primary/10 text-white"
                       : "text-slate-200"
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-slate-400" />
+                    <Globe
+                      className={
+                        isSm
+                          ? "h-3.5 w-3.5 text-slate-400"
+                          : "h-4 w-4 text-slate-400"
+                      }
+                    />
                     {o.label}
                   </span>
-                  <span className="text-sm text-slate-400">
+                  <span className={`${optionTimeCls} text-slate-400`}>
                     {new Intl.DateTimeFormat([], {
                       timeZone: o.value,
                       hour: "numeric",
@@ -156,7 +191,9 @@ export default function TimezonePicker({
             ))}
             {/* Empty state */}
             {filtered.length === 0 && (
-              <li className="px-3 py-3 text-base text-slate-400">No results</li>
+              <li className={`px-3 py-3 ${optionTextCls} text-slate-400`}>
+                No results
+              </li>
             )}
           </ul>
         </div>
