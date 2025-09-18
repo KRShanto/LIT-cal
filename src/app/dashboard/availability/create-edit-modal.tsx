@@ -106,6 +106,10 @@ export default function CreateEditModal({
     setEndTime("17:00");
   }
 
+  function removeSlotAt(index: number) {
+    setSlots((prev) => prev.filter((_, i) => i !== index));
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -243,15 +247,32 @@ export default function CreateEditModal({
                           {slots
                             .filter((s) => s.weekday === d)
                             .sort((a, b) => a.startMinutes - b.startMinutes)
-                            .map((s, sIdx) => (
-                              <span
-                                key={sIdx}
-                                className="rounded border border-white/15 bg-white/5 px-2 py-1"
-                              >
-                                {formatMinutesLocal12h(s.startMinutes)} –{" "}
-                                {formatMinutesLocal12h(s.endMinutes)}
-                              </span>
-                            ))}
+                            .map((s, sIdx) => {
+                              const globalIndex = slots.findIndex(
+                                (z) =>
+                                  z.weekday === d &&
+                                  z.startMinutes === s.startMinutes &&
+                                  z.endMinutes === s.endMinutes
+                              );
+                              return (
+                                <span
+                                  key={`${d}-${s.startMinutes}-${s.endMinutes}-${sIdx}`}
+                                  className="relative inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/5 pl-3 pr-7 py-1"
+                                >
+                                  {formatMinutesLocal12h(s.startMinutes)} –{" "}
+                                  {formatMinutesLocal12h(s.endMinutes)}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeSlotAt(globalIndex)}
+                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-0.5 text-slate-400 hover:bg-white/20 hover:text-red-400"
+                                    aria-label="Remove slot"
+                                    title="Remove slot"
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                  </button>
+                                </span>
+                              );
+                            })}
                         </div>
                       )}
                     </div>
