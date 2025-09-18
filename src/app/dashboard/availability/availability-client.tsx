@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState } from "react";
 import TimezonePicker from "@/components/timezone-picker";
-import { X, Plus, CalendarPlus, Clock } from "lucide-react";
+import { X, Plus, CalendarPlus, Clock, Trash2, Loader2 } from "lucide-react";
 import { createSchedule } from "@/actions/schedules/create-schedule";
+import { deleteSchedule } from "@/actions/schedules/delete-schedule";
 
 type Weekday =
   | "MONDAY"
@@ -54,6 +55,7 @@ export default function AvailabilityClient({
   initialSchedules?: Schedule[];
 }) {
   const [open, setOpen] = useState(false);
+  const [createVisible, setCreateVisible] = useState(false);
   const [scheduleName, setScheduleName] = useState("");
   const [timezone, setTimezone] = useState(defaultTimezone);
   const [isDefault, setIsDefault] = useState(false);
@@ -68,6 +70,24 @@ export default function AvailabilityClient({
         typeof s.createdAt === "string" ? s.createdAt : s.createdAt.toString(),
     }))
   );
+  const [confirmOpen, setConfirmOpen] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  function openConfirmDialog(data: { id: string; name: string }) {
+    setConfirmOpen(data);
+    setTimeout(() => setConfirmVisible(true), 0);
+  }
+
+  function closeConfirmDialog() {
+    setConfirmVisible(false);
+    setTimeout(() => setConfirmOpen(null), 180);
+  }
+  // Simple confirm modal state (no close animation)
 
   const weekdays: Weekday[] = useMemo(
     () => [
@@ -129,12 +149,26 @@ export default function AvailabilityClient({
 
   function resetForm() {
     setScheduleName("");
-    setTimezone("");
+    setTimezone(defaultTimezone);
     setIsDefault(false);
     setWeekday("MONDAY");
     setStartTime("09:00");
     setEndTime("17:00");
     setSlots([]);
+  }
+
+  function openCreateModal() {
+    setTimezone(defaultTimezone);
+    setOpen(true);
+    setTimeout(() => setCreateVisible(true), 0);
+  }
+
+  function closeCreateModal() {
+    setCreateVisible(false);
+    setTimeout(() => {
+      setOpen(false);
+      resetForm();
+    }, 180);
   }
 
   function submit() {
@@ -159,9 +193,11 @@ export default function AvailabilityClient({
     };
 
     void (async () => {
+      setIsCreating(true);
       const res = await createSchedule(payload);
       if (!res.ok) {
         alert(res.error);
+        setIsCreating(false);
         return;
       }
       // Optimistically append to local list so it displays without full reload
@@ -181,8 +217,8 @@ export default function AvailabilityClient({
         },
         ...prev,
       ]);
-      setOpen(false);
-      resetForm();
+      setIsCreating(false);
+      closeCreateModal();
     })();
   }
 
@@ -215,7 +251,7 @@ export default function AvailabilityClient({
         </div>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={openCreateModal}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground shadow hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <CalendarPlus className="h-4 w-4" /> Create availability
@@ -255,6 +291,16 @@ export default function AvailabilityClient({
                       Timezone: {sch.timezone || "—"}
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openConfirmDialog({ id: sch.id, name: sch.name })
+                    }
+                    className="rounded-md border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:border-red-500/70 hover:bg-red-500/10 hover:text-red-400"
+                    title="Delete schedule"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {/* Weekly grid */}
@@ -299,12 +345,18 @@ export default function AvailabilityClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setOpen(false)}
+            className={`absolute inset-0 bg-black/60 transition-opacity duration-200 ${
+              createVisible ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={closeCreateModal}
           />
 
           {/* Modal */}
-          <div className="relative z-10 flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-xl">
+          <div
+            className={`relative z-10 flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-xl transition-transform duration-200 ${
+              createVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
+          >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
               <h2 className="text-lg font-medium text-white">
@@ -312,7 +364,7 @@ export default function AvailabilityClient({
               </h2>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeCreateModal}
                 className="rounded p-1 text-slate-400 hover:bg-white/5 hover:text-white focus:outline-none"
                 aria-label="Close"
               >
@@ -492,10 +544,7 @@ export default function AvailabilityClient({
             <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
               <button
                 type="button"
-                onClick={() => {
-                  setOpen(false);
-                  resetForm();
-                }}
+                onClick={closeCreateModal}
                 className="rounded-md border border-white/15 px-4 py-2 text-base text-white hover:bg-white/5 focus:outline-none"
               >
                 Cancel
@@ -503,9 +552,71 @@ export default function AvailabilityClient({
               <button
                 type="button"
                 onClick={submit}
-                className="rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary"
+                disabled={isCreating}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
+                {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
                 Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className={`absolute inset-0 bg-black/60 transition-opacity duration-200 ${
+              confirmVisible ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={closeConfirmDialog}
+          />
+          <div
+            className={`relative z-10 w-full max-w-md overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-xl transition-transform duration-200 ${
+              confirmVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
+          >
+            <div className="border-b border-white/10 px-4 py-3">
+              <h3 className="text-base font-medium text-white">
+                Delete schedule
+              </h3>
+            </div>
+            <div className="px-4 py-4 text-slate-300">
+              Are you sure you want to delete &quot;{confirmOpen.name}&quot;?
+              This cannot be undone.
+            </div>
+            <div className="flex items-center justify-end gap-3 border-t border-white/10 px-4 py-3">
+              <button
+                type="button"
+                onClick={closeConfirmDialog}
+                disabled={deletingId !== null}
+                className="rounded-md border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const id = confirmOpen.id;
+                  setDeletingId(id);
+                  const res = await deleteSchedule(id);
+                  if (!res.ok) {
+                    alert(res.error);
+                    setDeletingId(null);
+                    return;
+                  }
+                  setSchedules((prev) => prev.filter((s) => s.id !== id));
+                  closeConfirmDialog();
+                  setDeletingId(null);
+                }}
+                disabled={deletingId !== null}
+                className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletingId !== null && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}{" "}
+                Delete
               </button>
             </div>
           </div>
