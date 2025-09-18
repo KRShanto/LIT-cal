@@ -79,9 +79,20 @@ export default function AvailabilityClient({
 
   function resetForm() {
     setPrefillSlots([]);
+    setEditingSchedule(null);
   }
 
   function openCreateModal() {
+    // Ensure we're not in edit mode and prefill slots are empty for fresh create
+    setEditingSchedule(null);
+    setPrefillSlots([]);
+    setIsCreateEditOpen(true);
+    setTimeout(() => setIsCreateEditVisible(true), 0);
+  }
+
+  function openEditModal(schedule: Schedule, slotsToPrefill: Slot[]) {
+    setEditingSchedule(schedule);
+    setPrefillSlots(slotsToPrefill);
     setIsCreateEditOpen(true);
     setTimeout(() => setIsCreateEditVisible(true), 0);
   }
@@ -124,15 +135,12 @@ export default function AvailabilityClient({
         <SchedulesList
           schedules={schedules}
           onEdit={(sch: ScheduleCard) => {
-            setEditingSchedule(sch as unknown as Schedule);
-            setPrefillSlots(
-              (sch.slots || []).map((s) => ({
-                weekday: s.weekday,
-                startMinutes: s.startMinutes,
-                endMinutes: s.endMinutes,
-              }))
-            );
-            openCreateModal();
+            const slotsToPrefill = (sch.slots || []).map((s) => ({
+              weekday: s.weekday,
+              startMinutes: s.startMinutes,
+              endMinutes: s.endMinutes,
+            }));
+            openEditModal(sch as unknown as Schedule, slotsToPrefill);
           }}
           onDelete={(sch: ScheduleCard) =>
             openConfirmDialog({ id: sch.id, name: sch.name })
