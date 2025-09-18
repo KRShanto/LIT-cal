@@ -47,7 +47,7 @@ export function ContactsHeader({
           />
           <button
             type="submit"
-            className="rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
+            className="rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/60 transition-all duration-200"
             disabled={isPending}
           >
             Search
@@ -56,7 +56,7 @@ export function ContactsHeader({
         <button
           type="button"
           onClick={onOpenCreate}
-          className="rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-white/10"
+          className="rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
         >
           New contact
         </button>
