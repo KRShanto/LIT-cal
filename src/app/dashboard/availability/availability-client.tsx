@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import TimezonePicker from "@/components/timezone-picker";
 import { X, Plus, CalendarPlus, Clock } from "lucide-react";
+import { createSchedule } from "@/actions/schedules/create-schedule";
 
 type Weekday =
   | "MONDAY"
@@ -31,10 +32,14 @@ type Slot = {
  * - Add/remove time slots per weekday
  * - Lightweight modal overlay without external dependencies
  */
-export default function AvailabilityClient() {
+export default function AvailabilityClient({
+  defaultTimezone = "",
+}: {
+  defaultTimezone?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [scheduleName, setScheduleName] = useState("");
-  const [timezone, setTimezone] = useState("");
+  const [timezone, setTimezone] = useState(defaultTimezone);
   const [isDefault, setIsDefault] = useState(false);
   const [weekday, setWeekday] = useState<Weekday>("MONDAY");
   const [startTime, setStartTime] = useState("09:00");
@@ -132,18 +137,21 @@ export default function AvailabilityClient() {
     }
 
     const payload = {
-      schedule: {
-        name: scheduleName.trim(),
-        isDefault,
-        timezone,
-      },
+      name: scheduleName.trim(),
+      isDefault,
+      timezone,
       slots,
     };
 
-    // No backend yet — just preview in console and close
-    console.log("Create Availability Payload", payload);
-    setOpen(false);
-    resetForm();
+    void (async () => {
+      const res = await createSchedule(payload);
+      if (!res.ok) {
+        alert(res.error);
+        return;
+      }
+      setOpen(false);
+      resetForm();
+    })();
   }
 
   const grouped = useMemo(() => {
