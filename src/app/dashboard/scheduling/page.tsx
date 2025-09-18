@@ -21,7 +21,6 @@ export default async function Page() {
         durationMinutes: true,
         scheduleId: true,
         isActive: true,
-        isPublic: true,
         questions: {
           select: {
             idx: true,
@@ -51,7 +50,6 @@ export default async function Page() {
           durationMinutes: number;
           scheduleId: string | null;
           isActive: boolean;
-          isPublic: boolean;
           questions: {
             idx: number;
             question: string;

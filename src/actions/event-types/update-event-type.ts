@@ -20,7 +20,6 @@ export type UpdateEventTypeInput = {
   durationMinutes: number;
   scheduleId?: string | null;
   isActive?: boolean;
-  isPublic?: boolean;
   questions?: {
     idx: number;
     question: string;
@@ -73,7 +72,6 @@ export async function updateEventType(
           durationMinutes: Math.floor(input.durationMinutes),
           scheduleId: input.scheduleId || null,
           isActive: Boolean(input.isActive ?? true),
-          isPublic: Boolean(input.isPublic ?? true),
         },
       });
 

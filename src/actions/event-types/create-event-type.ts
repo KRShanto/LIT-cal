@@ -25,7 +25,6 @@ export type CreateEventTypeInput = {
   durationMinutes: number;
   scheduleId?: string | null;
   isActive?: boolean;
-  isPublic?: boolean;
   questions?: CreateEventTypeQuestionInput[];
 };
 
@@ -75,7 +74,6 @@ export async function createEventType(
           durationMinutes: Math.floor(input.durationMinutes),
           scheduleId: input.scheduleId || null,
           isActive: Boolean(input.isActive ?? true),
-          isPublic: Boolean(input.isPublic ?? true),
         },
         select: { id: true },
       });
