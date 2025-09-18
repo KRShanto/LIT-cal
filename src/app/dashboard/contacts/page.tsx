@@ -22,15 +22,15 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
   const user = await getDbUser();
 
-  const search = (searchParams?.search || "").trim();
-  const page = Math.max(parseInt(searchParams?.page || "1", 10) || 1, 1);
+  const params = await searchParams;
+  const search = (params.search || "").trim();
+  const page = Math.max(parseInt(params.page || "1", 10) || 1, 1);
   const requestedPageSize =
-    parseInt(searchParams?.pageSize || String(MAX_CONTACTS), 10) ||
-    MAX_CONTACTS;
+    parseInt(params.pageSize || String(MAX_CONTACTS), 10) || MAX_CONTACTS;
   const pageSize = Math.min(Math.max(requestedPageSize, 1), MAX_CONTACTS);
   const skip = (page - 1) * pageSize;
 
