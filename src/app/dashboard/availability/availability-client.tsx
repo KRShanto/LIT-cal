@@ -20,6 +20,20 @@ type Slot = {
   endMinutes: number; // minutes from 00:00
 };
 
+type Schedule = {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  timezone: string | null;
+  createdAt: string | Date;
+  slots: {
+    id: string;
+    weekday: Weekday;
+    startMinutes: number;
+    endMinutes: number;
+  }[];
+};
+
 /**
  * AvailabilityClient
  *
@@ -34,8 +48,10 @@ type Slot = {
  */
 export default function AvailabilityClient({
   defaultTimezone = "",
+  initialSchedules = [],
 }: {
   defaultTimezone?: string;
+  initialSchedules?: Schedule[];
 }) {
   const [open, setOpen] = useState(false);
   const [scheduleName, setScheduleName] = useState("");
@@ -45,6 +61,13 @@ export default function AvailabilityClient({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("17:00");
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>(
+    initialSchedules.map((s) => ({
+      ...s,
+      createdAt:
+        typeof s.createdAt === "string" ? s.createdAt : s.createdAt.toString(),
+    }))
+  );
 
   const weekdays: Weekday[] = useMemo(
     () => [
@@ -72,14 +95,6 @@ export default function AvailabilityClient({
   function timeToMinutes(t: string): number {
     const [h, m] = t.split(":").map((x) => parseInt(x, 10));
     return h * 60 + m;
-  }
-
-  function minutesToTime(min: number): string {
-    const h = Math.floor(min / 60)
-      .toString()
-      .padStart(2, "0");
-    const m = (min % 60).toString().padStart(2, "0");
-    return `${h}:${m}`;
   }
 
   function formatMinutesLocal12h(totalMinutes: number): string {
@@ -149,6 +164,23 @@ export default function AvailabilityClient({
         alert(res.error);
         return;
       }
+      // Optimistically append to local list so it displays without full reload
+      setSchedules((prev) => [
+        {
+          id: res.scheduleId,
+          name: payload.name,
+          isDefault: Boolean(payload.isDefault),
+          timezone: payload.timezone,
+          createdAt: new Date().toString(),
+          slots: payload.slots.map((s, idx) => ({
+            id: `${res.scheduleId}-${idx}`,
+            weekday: s.weekday,
+            startMinutes: s.startMinutes,
+            endMinutes: s.endMinutes,
+          })),
+        },
+        ...prev,
+      ]);
       setOpen(false);
       resetForm();
     })();
@@ -190,9 +222,77 @@ export default function AvailabilityClient({
         </button>
       </div>
 
-      {/* Simple empty state for now */}
-      <div className="rounded-md border border-white/10 p-6 text-slate-400">
-        No schedules yet. Click &quot;Create availability&quot; to add one.
+      {/* Schedules list */}
+      <div className="rounded-lg border border-white/10 bg-neutral-950/40 backdrop-blur">
+        <div className="border-b border-white/10 px-4 py-3">
+          <h2 className="text-base font-medium text-white">Your schedules</h2>
+        </div>
+        {schedules.length === 0 ? (
+          <div className="p-6 text-slate-400">
+            No schedules yet. Click &quot;Create availability&quot; to add one.
+          </div>
+        ) : (
+          <ul className="grid gap-4 p-4 sm:grid-cols-1 lg:grid-cols-2">
+            {schedules.map((sch, idx) => (
+              <li
+                key={idx}
+                className="rounded-lg border border-white/10 bg-neutral-900/40 p-4 shadow-sm transition hover:border-white/20"
+              >
+                {/* Header */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-lg font-semibold text-white">
+                        {sch.name}
+                      </span>
+                      {sch.isDefault && (
+                        <span className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      Timezone: {sch.timezone || "—"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekly grid */}
+                <div className="mt-4 divide-y divide-white/10 rounded-md border border-white/10">
+                  {weekdays.map((d, dIdx) => {
+                    const daySlots = sch.slots
+                      .filter((s) => s.weekday === d)
+                      .sort((a, b) => a.startMinutes - b.startMinutes);
+                    return (
+                      <div key={dIdx} className="flex items-center gap-3 p-2">
+                        <span className="w-28 shrink-0 text-sm font-medium text-slate-200">
+                          {weekdayLabel[d]}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          {daySlots.length === 0 ? (
+                            <span className="text-sm text-slate-500">—</span>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {daySlots.map((s, sIdx) => (
+                                <span
+                                  key={sIdx}
+                                  className="rounded-md border border-white/15 bg-white/5 px-2 py-1 text-xs text-slate-100"
+                                >
+                                  {formatMinutesLocal12h(s.startMinutes)} –{" "}
+                                  {formatMinutesLocal12h(s.endMinutes)}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {open && (
