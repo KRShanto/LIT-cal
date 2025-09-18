@@ -88,7 +88,6 @@ model EventType {
   schedule        Schedule?           @relation(fields: [scheduleId], references: [id])
   scheduleId      String?
   isActive        Boolean             @default(true)
-  isPublic        Boolean             @default(true)
   questions       EventTypeQuestion[]
   bookings        Booking[]
   createdAt       DateTime            @default(now())
