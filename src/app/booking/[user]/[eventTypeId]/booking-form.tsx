@@ -10,6 +10,7 @@ import DateTimePicker from "./date-time-picker";
 import UserInfoForm from "./user-info-form";
 import QuestionsForm from "./questions-form";
 import BookingSuccessModal from "./booking-success-modal";
+import { fromZonedTime } from "date-fns-tz";
 
 type AvailabilityData = {
   date: string; // YYYY-MM-DD format
@@ -109,12 +110,25 @@ export default function BookingForm({
         hour24 = 0;
       }
 
-      // Create start and end times
-      const startAt = new Date(selectedDate);
-      startAt.setHours(hour24, minutes, 0, 0);
+      // Create a date in the user's timezone, then convert to UTC
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(selectedDate.getDate()).padStart(2, "0");
+      const hour = String(hour24).padStart(2, "0");
+      const minute = String(minutes).padStart(2, "0");
 
-      const endAt = new Date(startAt);
-      endAt.setMinutes(endAt.getMinutes() + eventType.durationMinutes);
+      // Create a date string that represents the local time in the user's timezone
+      const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:00`;
+
+      // Use date-fns-tz for proper timezone conversion
+      // Create a date object representing the local time in the user's timezone
+      const localDate = new Date(localDateTimeString);
+
+      // Convert from user's timezone to UTC using the library
+      const startAt = fromZonedTime(localDate, userInfo.timezone);
+      const endAt = new Date(
+        startAt.getTime() + eventType.durationMinutes * 60000
+      );
 
       const result = await createBooking({
         eventTypeId: eventType.id,
