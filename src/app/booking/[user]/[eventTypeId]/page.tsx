@@ -2,6 +2,7 @@ import React from "react";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import BookingForm from "./booking-form";
+import { toZonedTime } from "date-fns-tz";
 
 type AvailabilityData = {
   date: string; // YYYY-MM-DD format
@@ -18,16 +19,21 @@ type Props = {
 /**
  * Generates availability data for the next 3 months based on the schedule.
  * Time slot spacing respects the event type duration (in minutes).
+ * Excludes already booked time slots.
  * @param schedule - The schedule with availability slots
  * @param eventDurationMinutes - Event duration in minutes
+ * @param eventTypeId - The event type ID to check for existing bookings
+ * @param hostTimezone - The host's timezone for proper time conversion
  * @returns Array of availability data for the next 3 months
  */
-function generateAvailabilityData(
+async function generateAvailabilityData(
   schedule: {
     slots: { weekday: string; startMinutes: number; endMinutes: number }[];
   } | null,
-  eventDurationMinutes: number
-): AvailabilityData[] {
+  eventDurationMinutes: number,
+  eventTypeId: string,
+  hostTimezone: string
+): Promise<AvailabilityData[]> {
   const availability: AvailabilityData[] = [];
   const today = new Date();
   const endDate = new Date(today);
@@ -75,6 +81,39 @@ function generateAvailabilityData(
     });
   }
 
+  // Fetch existing bookings for this event type
+  const existingBookings = await prisma.booking.findMany({
+    where: {
+      eventTypeId: eventTypeId,
+      startAt: {
+        gte: today,
+        lte: endDate,
+      },
+    },
+    select: {
+      startAt: true,
+      endAt: true,
+    },
+  });
+
+  // Create a map of booked time slots by date
+  const bookedSlotsByDate = new Map<string, Set<string>>();
+  existingBookings.forEach((booking) => {
+    // Convert UTC booking time to host's timezone
+    const hostDate = toZonedTime(booking.startAt, hostTimezone);
+    const dateStr = hostDate.toISOString().split("T")[0];
+
+    if (!bookedSlotsByDate.has(dateStr)) {
+      bookedSlotsByDate.set(dateStr, new Set());
+    }
+
+    // Convert booking time to time slot format in host's timezone
+    const startHour = hostDate.getHours();
+    const startMinute = hostDate.getMinutes();
+    const timeSlot = formatTime(startHour, startMinute);
+    bookedSlotsByDate.get(dateStr)!.add(timeSlot);
+  });
+
   // Generate availability for each day
   for (
     let date = new Date(today);
@@ -102,7 +141,7 @@ function generateAvailabilityData(
         }
       });
 
-      const timeSlots = Array.from(timeSlotsSet).sort((a, b) => {
+      const allTimeSlots = Array.from(timeSlotsSet).sort((a, b) => {
         // Sort by actual time
         const toMinutes = (t: string) => {
           const match = t.match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
@@ -117,10 +156,17 @@ function generateAvailabilityData(
         return toMinutes(a) - toMinutes(b);
       });
 
-      if (timeSlots.length > 0) {
+      // Filter out booked time slots
+      const dateStr = date.toISOString().split("T")[0];
+      const bookedSlots = bookedSlotsByDate.get(dateStr) || new Set();
+      const availableTimeSlots = allTimeSlots.filter(
+        (slot) => !bookedSlots.has(slot)
+      );
+
+      if (availableTimeSlots.length > 0) {
         availability.push({
-          date: date.toISOString().split("T")[0],
-          timeSlots,
+          date: dateStr,
+          timeSlots: availableTimeSlots,
         });
       }
     }
@@ -221,11 +267,13 @@ export default async function EventTypeBookingPage({ params }: Props) {
   }
 
   // Generate availability data based on the schedule and event duration
-  const availability = generateAvailabilityData(
-    eventTypeData.schedule,
-    eventTypeData.durationMinutes
-  );
   const hostTimezone = eventTypeData.user.timezone || "UTC";
+  const availability = await generateAvailabilityData(
+    eventTypeData.schedule,
+    eventTypeData.durationMinutes,
+    eventTypeData.id,
+    hostTimezone
+  );
 
   return (
     <BookingForm
