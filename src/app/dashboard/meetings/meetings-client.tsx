@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Calendar, Clock, User, Phone, Search } from "lucide-react";
 import { toZonedTime } from "date-fns-tz";
+import MeetingDetailsDrawer from "./meeting-details-drawer";
 
 type Booking = {
   id: string;
@@ -50,6 +51,8 @@ type TabType = "upcoming" | "past";
 export default function MeetingsClient({ bookings, userTimezone }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("upcoming");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Filter and search bookings
   const filteredBookings = useMemo(() => {
@@ -108,6 +111,23 @@ export default function MeetingsClient({ bookings, userTimezone }: Props) {
       minute: "2-digit",
       hour12: true,
     }).format(userDate);
+  }
+
+  /**
+   * Handles opening the meeting details drawer.
+   * @param booking - The booking to show details for
+   */
+  function handleBookingClick(booking: Booking) {
+    setSelectedBooking(booking);
+    setIsDrawerOpen(true);
+  }
+
+  /**
+   * Handles closing the meeting details drawer.
+   */
+  function handleCloseDrawer() {
+    setIsDrawerOpen(false);
+    setSelectedBooking(null);
   }
 
   /**
@@ -217,9 +237,10 @@ export default function MeetingsClient({ bookings, userTimezone }: Props) {
             const status = getBookingStatus(booking.startAt, booking.endAt);
 
             return (
-              <div
+              <button
                 key={booking.id}
-                className="group rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200"
+                onClick={() => handleBookingClick(booking)}
+                className="group w-full text-left rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
                 {/* Card Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -283,39 +304,19 @@ export default function MeetingsClient({ bookings, userTimezone }: Props) {
                     </div>
                   )}
                 </div>
-
-                {/* Answers */}
-                {booking.answers.length > 0 && (
-                  <div className="pt-4 border-t border-white/10">
-                    <h4 className="text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
-                      Additional Info
-                    </h4>
-                    <div className="space-y-1">
-                      {booking.answers.slice(0, 2).map((answer) => (
-                        <div key={answer.id} className="text-xs">
-                          <span className="text-slate-500">
-                            {answer.question.question}:
-                          </span>{" "}
-                          <span className="text-slate-300 truncate block">
-                            {typeof answer.value === "string"
-                              ? answer.value
-                              : JSON.stringify(answer.value)}
-                          </span>
-                        </div>
-                      ))}
-                      {booking.answers.length > 2 && (
-                        <div className="text-xs text-slate-500">
-                          +{booking.answers.length - 2} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              </button>
             );
           })
         )}
       </div>
+
+      {/* Meeting Details Drawer */}
+      <MeetingDetailsDrawer
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        booking={selectedBooking}
+        userTimezone={userTimezone}
+      />
     </div>
   );
 }
