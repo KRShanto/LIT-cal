@@ -271,14 +271,14 @@ export default function DateTimePicker({
   return (
     <div className="space-y-8">
       <div className="rounded-lg border border-white/10 p-6">
-        <div className="space-y-6">
+        <div>
           <label className="text-xl font-semibold text-slate-200">
             Select a Date & Time
           </label>
 
           {!showTimePicker ? (
             /* Calendar View */
-            <div className="space-y-6">
+            <div className="space-y-6 mt-5">
               <div className="rounded-xl border border-white/5 bg-neutral-900/30 p-6">
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between mb-6">
