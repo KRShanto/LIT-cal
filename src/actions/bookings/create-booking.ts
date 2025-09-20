@@ -64,27 +64,55 @@ export async function createBooking(
       return { ok: false, error: "Time slot is not available" };
     }
 
-    // Create the booking
-    const booking = await prisma.booking.create({
-      data: {
-        eventTypeId: input.eventTypeId,
-        userId: eventType.userId,
-        inviteeName: input.inviteeName,
-        inviteeEmail: input.inviteeEmail,
-        inviteePhone: input.inviteePhone,
-        startAt: input.startAt,
-        endAt: input.endAt,
-        timezone: input.timezone,
-        metadata: input.answers ? JSON.stringify(input.answers) : undefined,
-      },
-      select: { id: true },
+    // Use transaction to create both contact and booking atomically
+    const result = await prisma.$transaction(async (tx) => {
+      // Check if contact already exists for this user and email
+      let contact = await tx.contact.findFirst({
+        where: {
+          userId: eventType.userId,
+          email: input.inviteeEmail,
+        },
+      });
+
+      // Create contact if it doesn't exist
+      if (!contact) {
+        contact = await tx.contact.create({
+          data: {
+            userId: eventType.userId,
+            fullName: input.inviteeName,
+            email: input.inviteeEmail,
+            phone: input.inviteePhone,
+            timezone: input.timezone,
+          },
+        });
+      }
+
+      // Create the booking
+      const booking = await tx.booking.create({
+        data: {
+          eventTypeId: input.eventTypeId,
+          userId: eventType.userId,
+          contactId: contact.id,
+          inviteeName: input.inviteeName,
+          inviteeEmail: input.inviteeEmail,
+          inviteePhone: input.inviteePhone,
+          startAt: input.startAt,
+          endAt: input.endAt,
+          timezone: input.timezone,
+          metadata: input.answers ? JSON.stringify(input.answers) : undefined,
+        },
+        select: { id: true },
+      });
+
+      return { booking, contact };
     });
 
     // TODO: Create invitee answers if questions were answered
-    // This would require creating Contact and InviteeAnswer records
+    // This would require creating InviteeAnswer records
 
     revalidatePath("/dashboard/meetings");
-    return { ok: true, bookingId: booking.id };
+    revalidatePath("/dashboard/contacts");
+    return { ok: true, bookingId: result.booking.id };
   } catch (error) {
     console.error("Error creating booking:", error);
     return {
