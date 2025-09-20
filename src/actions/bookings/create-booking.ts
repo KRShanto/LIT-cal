@@ -104,11 +104,41 @@ export async function createBooking(
         select: { id: true },
       });
 
+      // Create invitee answers if questions were answered
+      if (input.answers && Object.keys(input.answers).length > 0) {
+        // Get event type questions to map answers
+        const eventTypeQuestions = await tx.eventTypeQuestion.findMany({
+          where: { eventTypeId: input.eventTypeId },
+          select: { id: true, idx: true },
+        });
+
+        // Create invitee answers
+        const inviteeAnswers = Object.entries(input.answers)
+          .map(([questionIdx, value]) => {
+            const question = eventTypeQuestions.find(
+              (q) => q.idx === parseInt(questionIdx)
+            );
+            if (!question) return null;
+
+            return {
+              bookingId: booking.id,
+              questionId: question.id,
+              value: value,
+            };
+          })
+          .filter(
+            (answer): answer is NonNullable<typeof answer> => answer !== null
+          );
+
+        if (inviteeAnswers.length > 0) {
+          await tx.inviteeAnswer.createMany({
+            data: inviteeAnswers,
+          });
+        }
+      }
+
       return { booking, contact };
     });
-
-    // TODO: Create invitee answers if questions were answered
-    // This would require creating InviteeAnswer records
 
     revalidatePath("/dashboard/meetings");
     revalidatePath("/dashboard/contacts");
