@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Copy, Check } from "lucide-react";
 import { type ScheduleOption } from "./ui/schedule-select";
 import EventTypeForm, { type EventTypeFormValues } from "./event-type-form";
 import { type QuestionDraft } from "./questions-list";
@@ -26,9 +27,11 @@ type EventTypeItem = {
 };
 
 export default function SchedulingClient({
+  username,
   schedules = [],
   eventTypes = [],
 }: {
+  username: string;
   schedules?: ScheduleOption[];
   eventTypes?: EventTypeItem[];
 }) {
@@ -38,6 +41,38 @@ export default function SchedulingClient({
   const [initial, setInitial] = useState<
     (Partial<EventTypeFormValues> & { questions?: QuestionDraft[] }) | null
   >(null);
+  const [copiedEventTypeId, setCopiedEventTypeId] = useState<string | null>(
+    null
+  );
+
+  /**
+   * Copy booking URL to clipboard with user feedback
+   * @param eventTypeSlug - The event type slug to build the URL
+   * @param eventTypeId - The event type ID for tracking copy state
+   */
+  const copyBookingUrl = async (eventTypeSlug: string, eventTypeId: string) => {
+    try {
+      const bookingUrl = `${
+        process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      }/booking/${username}/${eventTypeSlug}`;
+      await navigator.clipboard.writeText(bookingUrl);
+      setCopiedEventTypeId(eventTypeId);
+      setTimeout(() => setCopiedEventTypeId(null), 1000);
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = `${
+        process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      }/booking/${username}/${eventTypeSlug}`;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopiedEventTypeId(eventTypeId);
+      setTimeout(() => setCopiedEventTypeId(null), 2000);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -64,46 +99,65 @@ export default function SchedulingClient({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {eventTypes.map((et) => (
-            <button
+            <div
               key={et.id}
-              type="button"
-              onClick={() => {
-                setEditingId(et.id);
-                setIsActive(et.isActive);
-                const questions: QuestionDraft[] = (et.questions || []).map(
-                  (q) => ({
-                    idx: q.idx,
-                    question: q.question,
-                    type: q.type,
-                    required: q.required,
-                    options: q.options || [],
-                    expanded: false,
-                  })
-                );
-                setInitial({
-                  title: et.title,
-                  slug: et.slug,
-                  description: et.description ?? "",
-                  duration: et.durationMinutes,
-                  scheduleId: et.scheduleId,
-                  questions,
-                });
-                setDrawerOpen(true);
-              }}
-              className="group rounded-xl border border-white/10 bg-neutral-950/60 p-4 text-left shadow-base ring-1 ring-transparent transition hover:bg-white/5 hover:ring-white/10"
+              className="group rounded-xl border border-white/10 bg-neutral-950/60 p-4 shadow-base ring-1 ring-transparent transition hover:bg-white/5 hover:ring-white/10"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingId(et.id);
+                    setIsActive(et.isActive);
+                    const questions: QuestionDraft[] = (et.questions || []).map(
+                      (q) => ({
+                        idx: q.idx,
+                        question: q.question,
+                        type: q.type,
+                        required: q.required,
+                        options: q.options || [],
+                        expanded: false,
+                      })
+                    );
+                    setInitial({
+                      title: et.title,
+                      slug: et.slug,
+                      description: et.description ?? "",
+                      duration: et.durationMinutes,
+                      scheduleId: et.scheduleId,
+                      questions,
+                    });
+                    setDrawerOpen(true);
+                  }}
+                  className="flex-1 min-w-0 text-left"
+                >
                   <h3 className="truncate text-lg font-medium text-white">
                     {et.title}
                   </h3>
                   <p className="mt-1 line-clamp-2 text-base text-slate-400">
                     {et.description || "No description"}
                   </p>
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-300">
+                    {et.durationMinutes} min
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyBookingUrl(et.slug, et.id);
+                    }}
+                    className="shrink-0 rounded-md border border-white/10 p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
+                    title="Copy booking link"
+                  >
+                    {copiedEventTypeId === et.id ? (
+                      <Check className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
-                <span className="shrink-0 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-300">
-                  {et.durationMinutes} min
-                </span>
               </div>
               <div className="mt-3 flex items-center gap-2 text-xs">
                 <span
@@ -116,7 +170,7 @@ export default function SchedulingClient({
                   {et.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}

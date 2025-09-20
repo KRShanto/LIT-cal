@@ -38,6 +38,7 @@ export default async function Page() {
 
   return (
     <SchedulingClient
+      username={user.username}
       schedules={
         schedules as { id: string; name: string; isDefault: boolean }[]
       }
