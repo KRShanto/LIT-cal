@@ -60,7 +60,7 @@ async function getUserWithEventTypes(username: string) {
  * Displays all active event types that can be booked.
  */
 export default async function BookingPage({ params }: Props) {
-  const { user: username } = params;
+  const { user: username } = await params;
 
   const userData = await getUserWithEventTypes(username);
 

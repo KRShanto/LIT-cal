@@ -258,7 +258,7 @@ async function getEventTypeForBooking(username: string, eventTypeSlug: string) {
  * Displays the event type details and booking form with date/time selection and questions.
  */
 export default async function EventTypeBookingPage({ params }: Props) {
-  const { user: username, eventTypeId: eventTypeSlug } = params;
+  const { user: username, eventTypeId: eventTypeSlug } = await params;
 
   const eventTypeData = await getEventTypeForBooking(username, eventTypeSlug);
 
