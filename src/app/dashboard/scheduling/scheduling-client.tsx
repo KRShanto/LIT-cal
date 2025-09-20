@@ -90,12 +90,14 @@ export default function SchedulingClient({
                 });
                 setDrawerOpen(true);
               }}
-              className="group rounded-xl border border-white/10 bg-neutral-950/60 p-4 text-left shadow-sm ring-1 ring-transparent transition hover:bg-white/5 hover:ring-white/10"
+              className="group rounded-xl border border-white/10 bg-neutral-950/60 p-4 text-left shadow-base ring-1 ring-transparent transition hover:bg-white/5 hover:ring-white/10"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate text-white">{et.title}</h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-400">
+                  <h3 className="truncate text-lg font-medium text-white">
+                    {et.title}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-base text-slate-400">
                     {et.description || "No description"}
                   </p>
                 </div>
