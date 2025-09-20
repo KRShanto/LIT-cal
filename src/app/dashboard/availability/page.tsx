@@ -8,7 +8,7 @@ export default async function Page() {
   const schedules = await prisma.schedule.findMany({
     where: { userId: user.id },
     include: { slots: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
   return (
     <AvailabilityClient
