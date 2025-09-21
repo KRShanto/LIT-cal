@@ -12,7 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toZonedTime } from "date-fns-tz";
-import Drawer from "../scheduling/ui/drawer";
+import Drawer from "../../../components/ui/drawer";
 
 type Booking = {
   id: string;

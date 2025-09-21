@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import Drawer from "./ui/drawer";
+import Drawer from "../../../components/ui/drawer";
 import ScheduleSelect, { type ScheduleOption } from "./ui/schedule-select";
 import QuestionsList, { type QuestionDraft } from "./questions-list";
 import { createEventType } from "@/actions/event-types/create-event-type";
