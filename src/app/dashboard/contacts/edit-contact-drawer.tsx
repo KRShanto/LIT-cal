@@ -5,8 +5,9 @@ import { Camera, Trash2 } from "lucide-react";
 import TimezonePicker from "@/components/timezone-picker";
 import { genUploader } from "uploadthing/client";
 import type { OurFileRouter } from "@/lib/uploadthing";
-import type { ContactItem } from "@/app/dashboard/contacts/contacts-table";
+import type { Contact } from "@prisma/client";
 import { DeleteContactModal } from "@/app/dashboard/contacts/delete-contact-modal";
+import { updateContact } from "@/actions/contacts/update-contact";
 import Drawer from "@/components/ui/drawer";
 
 export function EditContactDrawer({
@@ -15,7 +16,7 @@ export function EditContactDrawer({
   onClose,
   onDelete,
 }: {
-  contact: ContactItem | null;
+  contact: Contact | null;
   open: boolean;
   onClose: () => void;
   onDelete?: (contactId: string) => void;
@@ -48,15 +49,15 @@ export function EditContactDrawer({
       setFullName(contact.fullName);
       setEmail(contact.email || "");
       setPhone(contact.phone || "");
-      setPhoneCountry(""); // Not available in ContactItem type
+      setPhoneCountry(contact.phoneCountry || "");
       setCompany(contact.company || "");
       setJobTitle(contact.jobTitle || "");
       setTimezoneValue(contact.timezone || "");
-      setLinkedin(""); // Not available in ContactItem type
-      setCountry(""); // Not available in ContactItem type
-      setCity(""); // Not available in ContactItem type
-      setState(""); // Not available in ContactItem type
-      setNotes(""); // Not available in ContactItem type
+      setLinkedin(contact.linkedin || "");
+      setCountry(contact.country || "");
+      setCity(contact.city || "");
+      setState(contact.state || "");
+      setNotes(contact.notes || "");
       setAvatarUrl(contact.avatarUrl || null);
       setAvatarFile(null);
       setError(null);
@@ -80,8 +81,7 @@ export function EditContactDrawer({
         finalAvatarUrl = res?.[0]?.ufsUrl ?? finalAvatarUrl;
       }
 
-      // TODO: Call update contact API
-      console.log("Update contact:", {
+      const res = await updateContact({
         id: contact.id,
         fullName,
         email,
@@ -98,7 +98,11 @@ export function EditContactDrawer({
         notes,
       });
 
-      // For now, just close the drawer
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+
       startTransition(() => {
         onClose();
       });
@@ -144,7 +148,7 @@ export function EditContactDrawer({
         title="Edit contact"
         maxWidth="max-w-md"
       >
-        {contact && (
+        {contact ? (
           <form onSubmit={submit} className="flex h-full flex-col">
             <div className="flex flex-col gap-4">
               {/* Avatar */}
@@ -390,6 +394,10 @@ export function EditContactDrawer({
               </div>
             </div>
           </form>
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-slate-400">Contact not found</div>
+          </div>
         )}
       </Drawer>
 
