@@ -8,18 +8,17 @@ import type { OurFileRouter } from "@/lib/uploadthing";
 import type { Contact } from "@prisma/client";
 import { DeleteContactModal } from "@/app/dashboard/contacts/delete-contact-modal";
 import { updateContact } from "@/actions/contacts/update-contact";
+import { deleteContact } from "@/actions/contacts/delete-contact";
 import Drawer from "@/components/ui/drawer";
 
 export function EditContactDrawer({
   contact,
   open,
   onClose,
-  onDelete,
 }: {
   contact: Contact | null;
   open: boolean;
   onClose: () => void;
-  onDelete?: (contactId: string) => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,9 +121,13 @@ export function EditContactDrawer({
 
     setIsDeleting(true);
     try {
-      // TODO: Call delete contact API
-      console.log("Delete contact:", contact.id);
-      onDelete?.(contact.id);
+      const res = await deleteContact(contact.id);
+
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+
       setShowDeleteModal(false);
       startTransition(() => {
         onClose();

@@ -41,13 +41,6 @@ export default function ContactsClient({
     setSelectedContact(null);
   };
 
-  const onDeleteContact = (contactId: string) => {
-    // TODO: Call delete contact API
-    console.log("Delete contact requested:", contactId);
-    // Refresh the page after deletion
-    startTransition(() => router.refresh());
-  };
-
   return (
     <div className="flex h-full flex-col gap-4">
       <ContactsHeader defaultQuery={search} onOpenCreate={onOpenCreateDrawer} />
@@ -78,7 +71,6 @@ export default function ContactsClient({
         contact={selectedContact}
         open={selectedContact !== null}
         onClose={onCloseEditDrawer}
-        onDelete={onDeleteContact}
       />
     </div>
   );
