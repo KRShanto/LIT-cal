@@ -1,28 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-
-export type ContactItem = {
-  id: string;
-  fullName: string;
-  email: string | null;
-  phone: string | null;
-  company: string | null;
-  jobTitle: string | null;
-  timezone: string | null;
-  avatarUrl?: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-};
+import type { Contact } from "@prisma/client";
 
 export function ContactsTable({
   items,
   search,
   onContactClick,
 }: {
-  items: ContactItem[];
+  items: Contact[];
   search: string;
-  onContactClick?: (contact: ContactItem) => void;
+  onContactClick?: (contact: Contact) => void;
 }) {
   const contacts = useMemo(() => {
     return items.map((c) => ({
@@ -65,7 +53,7 @@ export function ContactsTable({
             <tr
               key={index}
               className="border-t border-white/10 text-slate-200 hover:bg-white/5 cursor-pointer transition-colors"
-              onClick={() => onContactClick?.(c)}
+              onClick={() => onContactClick?.(c as unknown as Contact)}
             >
               <td className="px-3 py-2">
                 <div className="flex items-center gap-3">

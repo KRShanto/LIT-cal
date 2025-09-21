@@ -7,19 +7,7 @@ import { EditContactDrawer } from "@/app/dashboard/contacts/edit-contact-drawer"
 import { ContactsHeader } from "@/app/dashboard/contacts/contacts-header";
 import { ContactsTableContainer } from "@/app/dashboard/contacts/contacts-table-container";
 import { ContactsPaginationController } from "@/app/dashboard/contacts/contacts-pagination-controller";
-
-type ContactItem = {
-  id: string;
-  fullName: string;
-  email: string | null;
-  phone: string | null;
-  company: string | null;
-  jobTitle: string | null;
-  timezone: string | null;
-  avatarUrl?: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-};
+import type { Contact } from "@prisma/client";
 
 export default function ContactsClient({
   initialContacts,
@@ -29,7 +17,7 @@ export default function ContactsClient({
   search,
   maxPerPage,
 }: {
-  initialContacts: ContactItem[];
+  initialContacts: Contact[];
   total: number;
   page: number;
   pageSize: number;
@@ -39,15 +27,13 @@ export default function ContactsClient({
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<ContactItem | null>(
-    null
-  );
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   const contacts = useMemo(() => initialContacts, [initialContacts]);
 
   const onOpenCreateDrawer = () => setIsCreateDrawerOpen(true);
 
-  const onContactClick = (contact: ContactItem) => {
+  const onContactClick = (contact: Contact) => {
     setSelectedContact(contact);
   };
 

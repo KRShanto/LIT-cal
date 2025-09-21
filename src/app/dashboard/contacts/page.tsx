@@ -54,18 +54,6 @@ export default async function Page({
       orderBy: { updatedAt: "desc" },
       skip,
       take: pageSize,
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        company: true,
-        jobTitle: true,
-        timezone: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     }),
   ]);
 

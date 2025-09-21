@@ -1,19 +1,17 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  ContactsTable,
-  type ContactItem,
-} from "@/app/dashboard/contacts/contacts-table";
+import { ContactsTable } from "@/app/dashboard/contacts/contacts-table";
+import type { Contact } from "@prisma/client";
 
 export function ContactsTableContainer({
   items,
   search,
   onContactClick,
 }: {
-  items: ContactItem[];
+  items: Contact[];
   search: string;
-  onContactClick?: (contact: ContactItem) => void;
+  onContactClick?: (contact: Contact) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   return (
