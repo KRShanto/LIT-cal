@@ -7,11 +7,13 @@ export default function Drawer({
   onClose,
   title,
   children,
+  maxWidth = "max-w-xl",
 }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  maxWidth?: string;
 }) {
   return (
     <div
@@ -26,7 +28,7 @@ export default function Drawer({
         onClick={onClose}
       />
       <div
-        className={`absolute right-0 top-0 h-full w-full max-w-xl transform bg-neutral-950 shadow-xl ring-1 ring-white/10 transition-transform duration-350 ease-out ${
+        className={`absolute right-0 top-0 h-full w-full ${maxWidth} transform bg-neutral-950 shadow-xl ring-1 ring-white/10 transition-transform duration-350 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
