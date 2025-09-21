@@ -9,9 +9,11 @@ import {
 export function ContactsTableContainer({
   items,
   search,
+  onContactClick,
 }: {
   items: ContactItem[];
   search: string;
+  onContactClick?: (contact: ContactItem) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   return (
@@ -20,7 +22,11 @@ export function ContactsTableContainer({
         ref={scrollRef}
         className="max-h-[70vh] overflow-x-auto overflow-y-auto sm:max-h-[75vh] lg:max-h-[80vh]"
       >
-        <ContactsTable items={items} search={search} />
+        <ContactsTable
+          items={items}
+          search={search}
+          onContactClick={onContactClick}
+        />
       </div>
     </div>
   );

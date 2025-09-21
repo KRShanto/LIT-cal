@@ -18,9 +18,11 @@ export type ContactItem = {
 export function ContactsTable({
   items,
   search,
+  onContactClick,
 }: {
   items: ContactItem[];
   search: string;
+  onContactClick?: (contact: ContactItem) => void;
 }) {
   const contacts = useMemo(() => {
     return items.map((c) => ({
@@ -60,7 +62,11 @@ export function ContactsTable({
           </tr>
         ) : (
           contacts.map((c, index) => (
-            <tr key={index} className="border-t border-white/10 text-slate-200">
+            <tr
+              key={index}
+              className="border-t border-white/10 text-slate-200 hover:bg-white/5 cursor-pointer transition-colors"
+              onClick={() => onContactClick?.(c)}
+            >
               <td className="px-3 py-2">
                 <div className="flex items-center gap-3">
                   {c.avatarUrl ? (
