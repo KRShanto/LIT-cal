@@ -71,7 +71,7 @@ export default function Sidebar({ user }: { user: DbUser }) {
         </Link>
 
         <Link
-          href="/scheduling?new=true"
+          href="/dashboard/scheduling"
           className="mt-10 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/60 bg-transparent px-5 py-3 text-base font-semibold text-primary transition hover:bg-primary/10"
         >
           <Plus className="h-5 w-5" /> Create
